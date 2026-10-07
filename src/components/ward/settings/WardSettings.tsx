@@ -7,7 +7,7 @@ import meta from "@/data/shared/meta.json";
 import options from "@/data/ward/options.json";
 
 export function WardSettings() {
-  const { user, wardName, saveProfile } = useWard();
+  const { user, wardName, saveProfile, changePassword } = useWard();
 
   return (
     <>
@@ -18,6 +18,7 @@ export function WardSettings() {
         nameLabel="Staff name"
         notifyPreferences={options.notifyPreferences}
         onSave={saveProfile}
+        onChangePassword={changePassword}
       />
     </>
   );

@@ -22,9 +22,7 @@ Each page file in `app/` only renders one page component. Pages are split into s
 
 ## Data
 
-All seed data lives in `src/data` and is imported as JSON: wards, vehicles, routes, schedules, programs, updates, reports, notifications, navigation, status colours, dropdown options, default form values, hex-map layout and route-map lines. Mutable data is copied into React state in the context providers.
-
-The ward tonnages, schedule times and ward statuses that the HTML generated with formulas were evaluated once and stored as JSON (tonnages are rounded to one decimal).
+Records (wards, vehicles, routes, schedules, programs, updates, reports, notifications, drivers) come from the backend API (`src/lib/api.ts`). Their original seed JSON moved to `Waste-management/backend/app/seed_data`. `src/data` still holds UI configuration: navigation, status colours, dropdown options, default form values, hex-map layout and route-map lines.
 
 ## State
 
@@ -33,7 +31,8 @@ The original used global variables and `innerHTML` re-rendering. Now:
 - `KmcContext` and `WardContext` hold the data and the actions (assign driver, complete route, create program, and so on).
 - `UiContext` provides `toast`, `openDrawer`, `openModal` and `closeOverlay`.
 - Drawers and modals receive an id and read live data from context, so they stay up to date.
-- Like the HTML, state resets on page reload. Log out reloads the page.
+- On login the context loads its portal's state (`GET /api/v1/kmc/state` or `/api/v1/wards/{n}/state`). Each action updates React state right away, sends the change to the API, then reloads the state so the UI shows what the server stored. API errors appear as toasts.
+- The session token is kept in `sessionStorage`, so a reload keeps you logged in. Log out clears it and reloads the page.
 
 ## Design
 

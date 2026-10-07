@@ -19,6 +19,10 @@
     {
       "label": "Reports & Complaints",
       "href": "/ward/reports"
+    },
+    {
+      "label": "Identify Waste",
+      "href": "/ward/identify"
     }
   ],
   "secondary": {

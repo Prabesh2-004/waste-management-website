@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { AppShell } from "@/components/layout/AppShell";
 import { AuthCard } from "@/components/auth/AuthCard";
 import { WardSelectCard } from "@/components/auth/WardSelectCard";
+import { LoadingScreen } from "@/components/ui/LoadingScreen";
 import { UiProvider } from "@/context/UiContext";
 import { WardProvider, useWard } from "@/context/WardContext";
 import navigation from "@/data/ward/navigation.json";
@@ -11,16 +12,18 @@ import userData from "@/data/ward/user.json";
 import meta from "@/data/shared/meta.json";
 
 function WardGate({ children }: { children: React.ReactNode }) {
-  const { authed, needsWardSelection, signIn, enterWard, user, wardName, notifications, seen, markSeen } = useWard();
+  const { ready, authed, needsWardSelection, signIn, enterWard, user, wardName, notifications, seen, markSeen } = useWard();
   const router = useRouter();
+
+  if (!ready) return <LoadingScreen />;
 
   if (!authed && needsWardSelection) {
     return (
       <WardSelectCard
         wardCount={meta.wardCount}
-        defaultWard={userData.ward}
-        onContinue={(ward) => {
-          enterWard(ward);
+        defaultWard={user.ward}
+        onContinue={async (ward) => {
+          await enterWard(ward);
           router.push("/ward/dashboard");
         }}
       />
@@ -65,10 +68,10 @@ function WardGate({ children }: { children: React.ReactNode }) {
 
 export function WardPortal({ children }: { children: React.ReactNode }) {
   return (
-    <WardProvider>
-      <UiProvider toastMs={3600}>
+    <UiProvider toastMs={3600}>
+      <WardProvider>
         <WardGate>{children}</WardGate>
-      </UiProvider>
-    </WardProvider>
+      </WardProvider>
+    </UiProvider>
   );
 }

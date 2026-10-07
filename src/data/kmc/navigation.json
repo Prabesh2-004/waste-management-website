@@ -21,6 +21,10 @@
       "href": "/kmc/reports"
     },
     {
+      "label": "Identify Waste",
+      "href": "/kmc/identify"
+    },
+    {
       "label": "Ward Monitoring",
       "href": "/kmc/wards"
     }
