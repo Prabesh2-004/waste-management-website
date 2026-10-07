@@ -1,0 +1,28 @@
+{
+  "main": [
+    {
+      "label": "Dashboard",
+      "href": "/ward/dashboard"
+    },
+    {
+      "label": "Collection",
+      "href": "/ward/collection"
+    },
+    {
+      "label": "Awareness",
+      "href": "/ward/awareness"
+    },
+    {
+      "label": "Updates & Information",
+      "href": "/ward/updates"
+    },
+    {
+      "label": "Reports & Complaints",
+      "href": "/ward/reports"
+    }
+  ],
+  "secondary": {
+    "label": "Profile / Settings",
+    "href": "/ward/settings"
+  }
+}

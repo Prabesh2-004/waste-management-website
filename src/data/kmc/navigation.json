@@ -1,0 +1,32 @@
+{
+  "main": [
+    {
+      "label": "Dashboard",
+      "href": "/kmc/dashboard"
+    },
+    {
+      "label": "Collection",
+      "href": "/kmc/collection"
+    },
+    {
+      "label": "Awareness",
+      "href": "/kmc/awareness"
+    },
+    {
+      "label": "Updates & Information",
+      "href": "/kmc/updates"
+    },
+    {
+      "label": "Reports & Complaints",
+      "href": "/kmc/reports"
+    },
+    {
+      "label": "Ward Monitoring",
+      "href": "/kmc/wards"
+    }
+  ],
+  "secondary": {
+    "label": "Profile / Settings",
+    "href": "/kmc/settings"
+  }
+}

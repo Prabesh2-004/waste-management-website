@@ -1,0 +1,48 @@
+{
+  "awarenessTabs": [
+    "All",
+    "Upcoming",
+    "Ongoing",
+    "Completed"
+  ],
+  "notifyPreferences": [
+    "Delayed routes",
+    "New complaints",
+    "KMC program reviews"
+  ],
+  "driverOutcomes": [
+    "Collection completed",
+    "Vehicle problem (delayed)",
+    "Unable to complete"
+  ],
+  "completion": {
+    "baseline": 94,
+    "baselineDone": 2,
+    "perRoute": 3
+  },
+  "organicShare": {
+    "organic": 16.2,
+    "total": 28.4
+  },
+  "completeKgDefault": 850,
+  "newVehicleCapacityDefault": 5,
+  "defaultPickupTime": "08:00",
+  "defaultScheduleRoute": 3,
+  "newProgramDefaults": {
+    "name": "Waste Segregation Awareness",
+    "date": "2026-10-25",
+    "time": "11:00",
+    "location": "Ward Community Hall",
+    "description": "Household waste segregation awareness session.",
+    "expected": 50
+  },
+  "simulatedComplaint": {
+    "ty": "Collection not completed",
+    "src": "Citizen",
+    "rt": 4,
+    "ds": "Collection truck did not arrive in Gaushala.",
+    "c": "Collection",
+    "loc": "Gaushala"
+  },
+  "wardChoices": 32
+}

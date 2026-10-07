@@ -1,0 +1,13 @@
+{
+  "Completed": "G",
+  "Running": "G",
+  "Resolved": "G",
+  "Active": "G",
+  "In Progress": "A",
+  "Delayed": "A",
+  "Pending": "A",
+  "Upcoming": "B",
+  "Idle": "B",
+  "Incomplete": "R",
+  "Maintenance": "R"
+}

@@ -1,0 +1,23 @@
+[
+  {
+    "id": "delayed-ward-12",
+    "text": "Collection delayed in Ward 12",
+    "status": "Delayed",
+    "href": "/kmc/collection",
+    "collectionTab": "Overview"
+  },
+  {
+    "id": "maintenance-kmc-04",
+    "text": "Vehicle KMC-04 maintenance due in 12 days",
+    "status": "Pending",
+    "href": "/kmc/collection",
+    "collectionTab": "Vehicles"
+  },
+  {
+    "id": "pending-complaints",
+    "text": "{count} complaints need attention",
+    "status": "Pending",
+    "href": "/kmc/reports",
+    "collectionTab": null
+  }
+]
