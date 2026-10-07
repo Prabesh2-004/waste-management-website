@@ -1,0 +1,16 @@
+{
+  "Completed": "G",
+  "Approved": "G",
+  "Active": "G",
+  "Ongoing": "G",
+  "Resolved": "G",
+  "Scheduled": "B",
+  "Upcoming": "B",
+  "Idle": "B",
+  "In Progress": "A",
+  "Delayed": "A",
+  "Pending": "A",
+  "Pending KMC review": "A",
+  "Incomplete": "R",
+  "Needs changes": "R"
+}

@@ -1,0 +1,43 @@
+{
+  "collectionTabs": [
+    "Overview",
+    "Vehicles",
+    "Routes",
+    "Schedule"
+  ],
+  "updateCategories": [
+    "Collection",
+    "Awareness",
+    "Guidance",
+    "Announcements",
+    "Milestones"
+  ],
+  "updateFilters": [
+    "All",
+    "Collection",
+    "Awareness",
+    "Guidance",
+    "Announcements",
+    "Milestones"
+  ],
+  "reportStatusFilters": [
+    "All",
+    "Pending",
+    "In Progress",
+    "Resolved"
+  ],
+  "reportStatuses": [
+    "Pending",
+    "In Progress",
+    "Resolved"
+  ],
+  "reportCategoryFilters": [
+    "All",
+    "Collection",
+    "Vehicle",
+    "Route",
+    "Waste",
+    "Other"
+  ],
+  "organicRatio": 0.57
+}

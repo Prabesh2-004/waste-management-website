@@ -1,0 +1,65 @@
+{
+  "awarenessTabs": [
+    "Upcoming",
+    "Running",
+    "Completed"
+  ],
+  "wasteKinds": [
+    "Organic + Inorganic",
+    "Organic",
+    "Inorganic",
+    "Recyclable"
+  ],
+  "collectionStatuses": [
+    "Completed",
+    "In Progress",
+    "Delayed",
+    "Incomplete"
+  ],
+  "attentionOrder": {
+    "Incomplete": 0,
+    "Delayed": 1,
+    "In Progress": 2
+  },
+  "nextDriverAction": {
+    "In Progress": "Driver completes",
+    "Delayed": "Driver resumes",
+    "Incomplete": "Driver retries"
+  },
+  "wardPeriods": [
+    {
+      "label": "Today",
+      "factor": 1
+    },
+    {
+      "label": "This Week",
+      "factor": 6.6
+    },
+    {
+      "label": "This Month",
+      "factor": 27
+    }
+  ],
+  "fallbackCompletion": {
+    "base": 60,
+    "step": 7,
+    "mod": 5
+  },
+  "notifyPreferences": [
+    "Delayed collections",
+    "New complaints",
+    "Awareness program completion"
+  ],
+  "defaultWard": 17,
+  "newProgramDefaults": {
+    "name": "Waste Segregation Awareness",
+    "date": "2026-10-25",
+    "time": "11:00",
+    "description": "Hands-on session on separating household waste.",
+    "expected": 50
+  },
+  "completeKgDefault": 850,
+  "newVehicleCapacityDefault": 5,
+  "defaultPickupTime": "08:00",
+  "registrationBatch": 4
+}
