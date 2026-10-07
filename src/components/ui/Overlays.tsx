@@ -24,7 +24,7 @@ export function DrawerContent({ children }: DrawerContentProps) {
 interface ModalContentProps {
   title: string;
   okLabel: string;
-  onSubmit: () => void;
+  onSubmit: () => void | Promise<void>;
   children: React.ReactNode;
 }
 

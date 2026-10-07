@@ -15,9 +15,10 @@ interface SettingsFormProps {
   nameLabel: string;
   notifyPreferences: string[];
   onSave: (profile: UserProfile) => void;
+  onChangePassword: (current: string, next: string) => Promise<void>;
 }
 
-export function SettingsForm({ user, wardLabel, nameLabel, notifyPreferences, onSave }: SettingsFormProps) {
+export function SettingsForm({ user, wardLabel, nameLabel, notifyPreferences, onSave, onChangePassword }: SettingsFormProps) {
   const { openModal, toast } = useUi();
   const [name, setName] = useState(user.name);
   const [role, setRole] = useState(user.role);
@@ -46,7 +47,7 @@ export function SettingsForm({ user, wardLabel, nameLabel, notifyPreferences, on
         >
           Save
         </Button>
-        <Button variant="outline" onClick={() => openModal(<PasswordModal />)}>
+        <Button variant="outline" onClick={() => openModal(<PasswordModal onChangePassword={onChangePassword} />)}>
           Change password
         </Button>
       </p>

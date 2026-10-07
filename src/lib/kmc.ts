@@ -1,33 +1,10 @@
-import wardsData from "@/data/kmc/wards.json";
-import statusData from "@/data/kmc/wardStatus.json";
-import scheduleData from "@/data/kmc/schedule.json";
 import optionsData from "@/data/kmc/options.json";
 import toneData from "@/data/kmc/statusTones.json";
 import hexData from "@/data/kmc/hexLayout.json";
-import type { HexCell, ScheduleSeed, WardSchedule, WardStat } from "@/types/kmc";
+import type { HexCell, WardStat } from "@/types/kmc";
 import type { ToneMap } from "@/types";
 
 export const kmcTones = toneData as ToneMap;
-
-export function initialWards(): WardStat[] {
-  return (wardsData as WardStat[]).map((w) => ({ ...w }));
-}
-
-export function initialWardStatus(): Record<number, string> {
-  const out: Record<number, string> = {};
-  Object.entries(statusData as Record<string, string>).forEach(([k, v]) => {
-    out[Number(k)] = v;
-  });
-  return out;
-}
-
-export function initialSchedule(): Record<number, WardSchedule> {
-  const out: Record<number, WardSchedule> = {};
-  (scheduleData as ScheduleSeed[]).forEach((s) => {
-    out[s.ward] = { t: s.time, k: s.kind };
-  });
-  return out;
-}
 
 export function completionPercent(ward: WardStat, status: string): number {
   if (status === "Completed") return 100;

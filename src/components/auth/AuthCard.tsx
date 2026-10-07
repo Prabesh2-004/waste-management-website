@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Input, Label } from "@/components/ui/Field";
 import { useUi } from "@/context/UiContext";
+import { errorMessage } from "@/lib/api";
 import meta from "@/data/shared/meta.json";
 import type { UserProfile } from "@/types";
 
@@ -14,7 +15,7 @@ interface AuthCardProps {
   rolePlaceholder: string;
   fallbackRole: string;
   defaultEmail: string;
-  onAuthenticate: (mode: Mode, profile: UserProfile) => void;
+  onAuthenticate: (mode: Mode, profile: UserProfile, password: string) => Promise<void>;
 }
 
 export function AuthCard({ portalLabel, rolePlaceholder, fallbackRole, defaultEmail, onAuthenticate }: AuthCardProps) {
@@ -46,13 +47,19 @@ function AuthForm({ mode, setMode, portalLabel, rolePlaceholder, fallbackRole, d
   const [email, setEmail] = useState(isLogin ? defaultEmail : "");
   const [password, setPassword] = useState(isLogin ? meta.demoPassword : "");
   const [showPassword, setShowPassword] = useState(false);
+  const [busy, setBusy] = useState(false);
 
-  const submit = () => {
+  const submit = async () => {
     if (!email || !password) return toast("Please enter your email and password");
     if (!isLogin && !name) return toast("Please enter your name");
-    if (isLogin && password !== meta.demoPassword) return toast("Invalid password");
-    if(isLogin && email !== defaultEmail) return toast("Invalid Email") 
-    onAuthenticate(mode, { name, role: role || fallbackRole, email });
+    if (!isLogin && password.length < 6) return toast("Password must be at least 6 characters");
+    setBusy(true);
+    try {
+      await onAuthenticate(mode, { name, role: role || fallbackRole, email }, password);
+    } catch (e) {
+      toast(errorMessage(e));
+      setBusy(false);
+    }
   };
 
   return (
@@ -76,8 +83,8 @@ function AuthForm({ mode, setMode, portalLabel, rolePlaceholder, fallbackRole, d
           {showPassword ? "Hide Password" : "Show Password"}
         </button>
         <p>
-          <Button block onClick={submit}>
-            {isLogin ? "Log in" : "Create account"}
+          <Button block onClick={submit} disabled={busy}>
+            {busy ? "Please wait…" : isLogin ? "Log in" : "Create account"}
           </Button>
         </p>
         <p className="text-center text-[13px] text-mut">
