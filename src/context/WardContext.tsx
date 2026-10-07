@@ -1,29 +1,41 @@
 "use client";
 
-import { createContext, useCallback, useContext, useMemo, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import type { ReactNode } from "react";
 import userData from "@/data/ward/user.json";
-import driversData from "@/data/ward/drivers.json";
-import vehiclesData from "@/data/ward/vehicles.json";
-import routesData from "@/data/ward/routes.json";
-import scheduleData from "@/data/ward/schedule.json";
-import programsData from "@/data/ward/programs.json";
-import updatesData from "@/data/ward/updates.json";
-import reportsData from "@/data/ward/reports.json";
-import notificationsData from "@/data/ward/notifications.json";
 import options from "@/data/ward/options.json";
-import meta from "@/data/shared/meta.json";
+import { useUi } from "@/context/UiContext";
+import { authenticate, errorMessage, loadToken, request, saveToken, todayShort } from "@/lib/api";
+import type { ApiUser } from "@/lib/api";
 import { formatTime } from "@/lib/format";
 import type { AwarenessProgram, NotificationItem, UpdateItem, UserProfile, Vehicle, WardUserProfile } from "@/types";
-import type { ScheduleRow, WardProgramInput, WardReport, WardRoute } from "@/types/ward";
+import type { WardProgramInput, WardReport, WardRoute } from "@/types/ward";
+
+interface WardState {
+  drivers: string[];
+  vehicles: Vehicle[];
+  routes: WardRoute[];
+  schedule: Record<number, string>;
+  programs: AwarenessProgram[];
+  updates: UpdateItem[];
+  reports: WardReport[];
+  notifications: (NotificationItem & { id: number })[];
+}
+
+type Call = <T = unknown>(path: string, opts?: { method?: string; body?: unknown; form?: FormData }) => Promise<T>;
+
+const DRIVER_OUTCOMES: Record<string, string> = { C: "completed", V: "delayed", U: "incomplete" };
 
 interface WardContextValue {
+  ready: boolean;
   authed: boolean;
   needsWardSelection: boolean;
-  signIn: (mode: "login" | "signup", profile: UserProfile) => void;
-  enterWard: (ward: number) => void;
+  signIn: (mode: "login" | "signup", profile: UserProfile, password: string) => Promise<void>;
+  enterWard: (ward: number) => Promise<void>;
   user: WardUserProfile;
   saveProfile: (profile: UserProfile) => void;
+  changePassword: (current: string, next: string) => Promise<void>;
+  call: Call;
   wardName: string;
   drivers: string[];
   vehicles: Vehicle[];
@@ -75,44 +87,120 @@ export function useWard(): WardContextValue {
   return ctx;
 }
 
-function initialSchedule(): Record<number, string> {
-  const out: Record<number, string> = {};
-  (scheduleData as ScheduleRow[]).forEach((s) => {
-    out[s.route] = s.time;
-  });
-  return out;
-}
-
 export function WardProvider({ children }: { children: ReactNode }) {
+  const { toast } = useUi();
+  const [ready, setReady] = useState(false);
+  const [token, setToken] = useState<string | null>(null);
   const [authed, setAuthed] = useState(false);
   const [needsWardSelection, setNeedsWardSelection] = useState(false);
   const [user, setUser] = useState<WardUserProfile>(userData);
-  const [vehicles, setVehicles] = useState<Vehicle[]>(vehiclesData as Vehicle[]);
-  const [routes, setRoutes] = useState<WardRoute[]>(routesData as WardRoute[]);
-  const [schedule, setSchedule] = useState<Record<number, string>>(initialSchedule);
-  const [programs, setPrograms] = useState<AwarenessProgram[]>(programsData as AwarenessProgram[]);
-  const [updates, setUpdates] = useState<UpdateItem[]>(updatesData as UpdateItem[]);
-  const [reports, setReports] = useState<WardReport[]>(reportsData as WardReport[]);
-  const [notifications, setNotifications] = useState<NotificationItem[]>(notificationsData);
+  const [drivers, setDrivers] = useState<string[]>([]);
+  const [vehicles, setVehicles] = useState<Vehicle[]>([]);
+  const [routes, setRoutes] = useState<WardRoute[]>([]);
+  const [schedule, setSchedule] = useState<Record<number, string>>({});
+  const [programs, setPrograms] = useState<AwarenessProgram[]>([]);
+  const [updates, setUpdates] = useState<UpdateItem[]>([]);
+  const [reports, setReports] = useState<WardReport[]>([]);
+  const [notifications, setNotifications] = useState<NotificationItem[]>([]);
   const [seen, setSeen] = useState(false);
+  const topNotification = useRef<number | null>(null);
   const [collectionTab, setCollectionTab] = useState("Overview");
   const [awarenessTab, setAwarenessTab] = useState(options.awarenessTabs[0]);
   const [updateFilter, setUpdateFilter] = useState("All");
   const [reportStatusFilter, setReportStatusFilter] = useState("All");
   const [reportCategory, setReportCategory] = useState("All");
 
-  const signIn = useCallback((mode: "login" | "signup", profile: UserProfile) => {
-    if (mode === "signup") setUser({ name: profile.name, role: profile.role, email: profile.email, ward: userData.ward });
-    setNeedsWardSelection(true);
+  const call: Call = useCallback((path, opts) => request(path, { ...opts, token }), [token]);
+
+  const applyUser = useCallback((u: ApiUser) => {
+    setUser({ name: u.name, role: u.role, email: u.email, ward: u.ward ?? userData.ward });
   }, []);
 
-  const enterWard = useCallback((ward: number) => {
-    setUser((u) => ({ ...u, ward }));
-    setNeedsWardSelection(false);
-    setAuthed(true);
+  const loadState = useCallback(async (ward: number, tok: string | null) => {
+    const s = await request<WardState>(`/api/v1/wards/${ward}/state`, { token: tok });
+    setDrivers(s.drivers);
+    setVehicles(s.vehicles);
+    setRoutes(s.routes);
+    setSchedule(s.schedule);
+    setPrograms(s.programs);
+    setUpdates(s.updates);
+    setReports(s.reports);
+    setNotifications(s.notifications);
+    const top = s.notifications[0]?.id ?? null;
+    if (topNotification.current !== null && top !== topNotification.current) setSeen(false);
+    topNotification.current = top;
   }, []);
 
-  const saveProfile = useCallback((profile: UserProfile) => setUser((u) => ({ ...u, ...profile })), []);
+  /** Send a change to the server, then reload so the UI shows the server's state. */
+  const sync = useCallback(
+    (promise: Promise<unknown>) => {
+      promise
+        .catch((e) => toast(errorMessage(e)))
+        .finally(() => loadState(user.ward, token).catch((e) => toast(errorMessage(e))));
+    },
+    [loadState, toast, user.ward, token]
+  );
+
+  // Restore the session after a page reload.
+  useEffect(() => {
+    const saved = loadToken("ward");
+    if (!saved) {
+      setReady(true);
+      return;
+    }
+    request<ApiUser>("/api/v1/me", { token: saved })
+      .then(async (u) => {
+        setToken(saved);
+        applyUser(u);
+        if (u.ward) {
+          await loadState(u.ward, saved);
+          setAuthed(true);
+        } else setNeedsWardSelection(true);
+      })
+      .catch(() => saveToken("ward", null))
+      .finally(() => setReady(true));
+  }, [applyUser, loadState]);
+
+  const signIn = useCallback(
+    async (mode: "login" | "signup", profile: UserProfile, password: string) => {
+      const res = await authenticate("ward", mode, profile, password);
+      saveToken("ward", res.access_token);
+      setToken(res.access_token);
+      applyUser(res.user);
+      setNeedsWardSelection(true);
+    },
+    [applyUser]
+  );
+
+  const enterWard = useCallback(
+    async (ward: number) => {
+      const u = await request<ApiUser>("/api/v1/me", { method: "PATCH", body: { ward }, token });
+      applyUser(u);
+      await loadState(ward, token);
+      setNeedsWardSelection(false);
+      setAuthed(true);
+    },
+    [applyUser, loadState, token]
+  );
+
+  const saveProfile = useCallback(
+    (profile: UserProfile) => {
+      setUser((u) => ({ ...u, ...profile }));
+      call<ApiUser>("/api/v1/me", { method: "PATCH", body: profile })
+        .then(applyUser)
+        .catch((e) => toast(errorMessage(e)));
+    },
+    [call, applyUser, toast]
+  );
+
+  const changePassword = useCallback(
+    async (current: string, next: string) => {
+      await call("/api/v1/me/password", { method: "POST", body: { current_password: current, new_password: next } });
+    },
+    [call]
+  );
+
+  const wardPath = `/api/v1/wards/${user.ward}`;
 
   const tons = useCallback(() => routes.reduce((a, r) => a + r.kg / 1000, 0), [routes]);
   const openComplaints = useCallback(() => reports.filter((r) => r.s !== "Resolved").length, [reports]);
@@ -128,12 +216,19 @@ export function WardProvider({ children }: { children: ReactNode }) {
     []
   );
 
-  const startRoute = useCallback((n: number) => setRouteStatus(n, { s: "In Progress" }), [setRouteStatus]);
+  const startRoute = useCallback(
+    (n: number) => {
+      setRouteStatus(n, { s: "In Progress" });
+      sync(call(`${wardPath}/routes/${n}/start`, { method: "POST" }));
+    },
+    [setRouteStatus, sync, call, wardPath]
+  );
 
   const submitDriverUpdate = useCallback(
     (n: number, outcome: string, kg: number) => {
       const route = routes.find((x) => x.n === n);
       if (!route) return "";
+      sync(call(`${wardPath}/routes/${n}/driver-update`, { method: "POST", body: { outcome: DRIVER_OUTCOMES[outcome[0]], kg } }));
       if (outcome[0] === "C") {
         const total = tons() - route.kg / 1000 + kg / 1000;
         setRouteStatus(n, { s: "Completed", kg });
@@ -146,7 +241,7 @@ export function WardProvider({ children }: { children: ReactNode }) {
             id: Date.now(),
             ty: "Vehicle breakdown",
             src: "Driver",
-            d: meta.todayShort,
+            d: todayShort(),
             s: "Pending",
             rt: n,
             ds: `${route.v} has a problem; Route ${n} is delayed.`,
@@ -163,16 +258,31 @@ export function WardProvider({ children }: { children: ReactNode }) {
       setRouteStatus(n, { s: "Incomplete" });
       return `Route ${n} marked Incomplete. KMC can see this.`;
     },
-    [routes, tons, setRouteStatus]
+    [routes, tons, setRouteStatus, sync, call, wardPath]
   );
 
-  const assignVehicleToRoute = useCallback((n: number, vehicleId: string) => setRouteStatus(n, { v: vehicleId }), [setRouteStatus]);
+  const assignVehicleToRoute = useCallback(
+    (n: number, vehicleId: string) => {
+      setRouteStatus(n, { v: vehicleId });
+      sync(call(`${wardPath}/routes/${n}`, { method: "PATCH", body: { vehicle: vehicleId } }));
+    },
+    [setRouteStatus, sync, call, wardPath]
+  );
 
-  const addVehicle = useCallback((vehicle: Vehicle) => setVehicles((list) => [...list, vehicle]), []);
+  const addVehicle = useCallback(
+    (vehicle: Vehicle) => {
+      setVehicles((list) => [...list, vehicle]);
+      sync(call(`${wardPath}/vehicles`, { method: "POST", body: vehicle }));
+    },
+    [sync, call, wardPath]
+  );
 
   const assignDriver = useCallback(
-    (vehicleId: string, driver: string) => setVehicles((list) => list.map((v) => (v.id === vehicleId ? { ...v, drv: driver } : v))),
-    []
+    (vehicleId: string, driver: string) => {
+      setVehicles((list) => list.map((v) => (v.id === vehicleId ? { ...v, drv: driver } : v)));
+      sync(call(`/api/v1/vehicles/${vehicleId}`, { method: "PATCH", body: { driver } }));
+    },
+    [sync, call]
   );
 
   const toggleMaintenance = useCallback(
@@ -180,15 +290,17 @@ export function WardProvider({ children }: { children: ReactNode }) {
       const current = vehicles.find((a) => a.id === vehicleId);
       const next = current?.st === "Maintenance" ? "Active" : "Maintenance";
       setVehicles((list) => list.map((v) => (v.id === vehicleId ? { ...v, st: next } : v)));
+      sync(call(`/api/v1/vehicles/${vehicleId}`, { method: "PATCH", body: { status: next } }));
       return next;
     },
-    [vehicles]
+    [vehicles, sync, call]
   );
 
   const changeSchedule = useCallback(
     (route: number, time: string) => {
       const old = schedule[route];
       setSchedule((s) => ({ ...s, [route]: time }));
+      sync(call(`${wardPath}/routes/${route}`, { method: "PATCH", body: { time } }));
       if (old !== time) {
         setUpdates((list) => [
           {
@@ -196,14 +308,14 @@ export function WardProvider({ children }: { children: ReactNode }) {
             c: "Collection",
             t: `Collection timing changed for Route ${route}`,
             b: `Previous: ${formatTime(old)} → New: ${formatTime(time)}`,
-            d: meta.todayShort,
+            d: todayShort(),
           },
           ...list,
         ]);
         setNotifications((list) => [{ text: `Collection schedule changed for Route ${route}`, href: "/ward/updates" }, ...list]);
       }
     },
-    [schedule]
+    [schedule, sync, call, wardPath]
   );
 
   const announce = useCallback(
@@ -214,7 +326,7 @@ export function WardProvider({ children }: { children: ReactNode }) {
           c: "Awareness",
           t: `${p.n} in Ward ${user.ward}`,
           b: `${p.d}, ${p.tm} at ${p.loc}. Register in the Citizen app.`,
-          d: meta.todayShort,
+          d: todayShort(),
         },
         ...list,
       ]);
@@ -239,8 +351,9 @@ export function WardProvider({ children }: { children: ReactNode }) {
       };
       setPrograms((list) => [...list, program]);
       if (!input.needsCoordination) announce(program);
+      sync(call(`${wardPath}/programs`, { method: "POST", body: input }));
     },
-    [announce]
+    [announce, sync, call, wardPath]
   );
 
   const decideProgram = useCallback(
@@ -251,8 +364,9 @@ export function WardProvider({ children }: { children: ReactNode }) {
         list.map((x) => (x.id === id ? { ...x, ap: approve ? "Approved" : "Needs changes", s: approve ? "Scheduled" : x.s } : x))
       );
       if (approve) announce(p);
+      sync(call(`/api/v1/programs/${id}/decision`, { method: "POST", body: { approve } }));
     },
-    [programs, announce]
+    [programs, announce, sync, call]
   );
 
   const patchProgram = useCallback(
@@ -260,48 +374,70 @@ export function WardProvider({ children }: { children: ReactNode }) {
     []
   );
 
-  const resubmitProgram = useCallback((id: number) => patchProgram(id, { ap: "Pending KMC review" }), [patchProgram]);
+  const resubmitProgram = useCallback(
+    (id: number) => {
+      patchProgram(id, { ap: "Pending KMC review" });
+      sync(call(`/api/v1/programs/${id}/resubmit`, { method: "POST" }));
+    },
+    [patchProgram, sync, call]
+  );
 
   const startProgram = useCallback(
     (id: number) => {
       patchProgram(id, { s: "Ongoing" });
       setAwarenessTab("All");
+      sync(call(`/api/v1/programs/${id}/start`, { method: "POST" }));
     },
-    [patchProgram]
+    [patchProgram, sync, call]
   );
 
   const completeProgram = useCallback(
     (id: number, attended: number) => {
       patchProgram(id, { att: attended, s: "Completed" });
       setAwarenessTab("Completed");
+      sync(call(`/api/v1/programs/${id}/complete`, { method: "POST", body: { attended } }));
       return attended;
     },
-    [patchProgram]
+    [patchProgram, sync, call]
   );
 
-  const addUpdate = useCallback((input: { category: string; title: string; message: string }) => {
-    setUpdates((list) => [{ id: Date.now(), c: input.category, t: input.title, b: input.message, d: meta.todayShort }, ...list]);
-  }, []);
+  const addUpdate = useCallback(
+    (input: { category: string; title: string; message: string }) => {
+      setUpdates((list) => [{ id: Date.now(), c: input.category, t: input.title, b: input.message, d: todayShort() }, ...list]);
+      sync(call(`${wardPath}/updates`, { method: "POST", body: input }));
+    },
+    [sync, call, wardPath]
+  );
 
   const simulateComplaint = useCallback(() => {
     const c = options.simulatedComplaint;
     setReports((list) => [
-      { id: Date.now(), ty: c.ty, src: c.src, d: meta.todayShort, s: "Pending", rt: c.rt, ds: c.ds, c: c.c, loc: c.loc, notes: [] },
+      { id: Date.now(), ty: c.ty, src: c.src, d: todayShort(), s: "Pending", rt: c.rt, ds: c.ds, c: c.c, loc: c.loc, notes: [] },
       ...list,
     ]);
     setNotifications((list) => [{ text: "New citizen complaint received", href: "/ward/reports" }, ...list]);
     setSeen(false);
-  }, []);
+    sync(
+      call(`${wardPath}/reports`, {
+        method: "POST",
+        body: { type: c.ty, source: c.src, route: c.rt, description: c.ds, category: c.c, location: c.loc },
+      })
+    );
+  }, [sync, call, wardPath]);
 
-  const saveReport = useCallback((id: number, status: string, note: string) => {
-    setReports((list) => list.map((r) => (r.id === id ? { ...r, s: status, notes: note ? [...r.notes, note] : r.notes } : r)));
-  }, []);
+  const saveReport = useCallback(
+    (id: number, status: string, note: string) => {
+      setReports((list) => list.map((r) => (r.id === id ? { ...r, s: status, notes: note ? [...r.notes, note] : r.notes } : r)));
+      sync(call(`/api/v1/reports/${id}`, { method: "PATCH", body: { status, note } }));
+    },
+    [sync, call]
+  );
 
   const value: WardContextValue = useMemo(
     () => ({
-      authed, needsWardSelection, signIn, enterWard, user, saveProfile,
+      ready, authed, needsWardSelection, signIn, enterWard, user, saveProfile, changePassword, call,
       wardName: `Ward ${user.ward}`,
-      drivers: driversData,
+      drivers,
       vehicles, routes, schedule, programs, updates, reports, notifications, seen,
       markSeen: () => setSeen(true),
       collectionTab, setCollectionTab, awarenessTab, setAwarenessTab, updateFilter, setUpdateFilter,
@@ -311,7 +447,7 @@ export function WardProvider({ children }: { children: ReactNode }) {
       startProgram, completeProgram, addUpdate, simulateComplaint, saveReport,
     }),
     [
-      authed, needsWardSelection, signIn, enterWard, user, saveProfile, vehicles, routes, schedule, programs, updates, reports,
+      ready, authed, needsWardSelection, signIn, enterWard, user, saveProfile, changePassword, call, drivers, vehicles, routes, schedule, programs, updates, reports,
       notifications, seen, collectionTab, awarenessTab, updateFilter, reportStatusFilter, reportCategory, tons, openComplaints,
       driverOf, doneCount, completion, startRoute, submitDriverUpdate, assignVehicleToRoute, addVehicle, assignDriver,
       toggleMaintenance, changeSchedule, createProgram, decideProgram, resubmitProgram, startProgram, completeProgram,

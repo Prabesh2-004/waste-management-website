@@ -6,12 +6,12 @@ import { useKmc } from "@/context/KmcContext";
 import options from "@/data/kmc/options.json";
 
 export function KmcSettings() {
-  const { user, saveProfile } = useKmc();
+  const { user, saveProfile, changePassword } = useKmc();
 
   return (
     <>
       <PageHeader title="Profile / Settings" subtitle="Your KMC account" />
-      <SettingsForm user={user} nameLabel="Name" notifyPreferences={options.notifyPreferences} onSave={saveProfile} />
+      <SettingsForm user={user} nameLabel="Name" notifyPreferences={options.notifyPreferences} onSave={saveProfile} onChangePassword={changePassword} />
     </>
   );
 }
