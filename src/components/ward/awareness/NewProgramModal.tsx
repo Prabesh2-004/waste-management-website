@@ -41,7 +41,7 @@ export function NewProgramModal() {
       <Input value={location} onChange={(e) => setLocation(e.target.value)} />
       <Label>Description</Label>
       <Textarea rows={2} value={description} onChange={(e) => setDescription(e.target.value)} />
-      <Label>Expected attendees</Label>
+      <Label>Attendee capacity</Label>
       <Input type="number" value={expected} onChange={(e) => setExpected(e.target.value)} />
       <Label>Needs city-level coordination?</Label>
       <Select options={yesNo} value={coordination} onChange={setCoordination} />
