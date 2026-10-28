@@ -39,7 +39,7 @@ export function NewProgramModal() {
       <Input type="time" value={time} onChange={(e) => setTime(e.target.value)} />
       <Label>Description</Label>
       <Textarea rows={2} value={description} onChange={(e) => setDescription(e.target.value)} />
-      <Label>Expected attendees</Label>
+      <Label>Attendee capacity</Label>
       <Input type="number" value={expected} onChange={(e) => setExpected(e.target.value)} />
     </ModalContent>
   );
