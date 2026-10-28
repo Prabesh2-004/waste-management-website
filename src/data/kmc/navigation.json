@@ -25,6 +25,10 @@
       "href": "/kmc/identify"
     },
     {
+      "label": "SMS Alerts",
+      "href": "/kmc/sms"
+    },
+    {
       "label": "Ward Monitoring",
       "href": "/kmc/wards"
     }

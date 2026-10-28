@@ -1,5 +1,6 @@
 export interface Identification {
-  id: number;
+  /** null for live-video frames, which are not saved. */
+  id: number | null;
   ward: number | null;
   label: "Bio" | "Non_Bio";
   category: "degradable" | "non_degradable";
