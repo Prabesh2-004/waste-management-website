@@ -1,99 +1,73 @@
 @import "tailwindcss";
 
+/*
+ * Design tokens taken from the two HTML prototypes in docs/prototypes.
+ * The KMC palette is the default; the ward portal sets data-portal="ward"
+ * on its shell to switch to the ward prototype's slightly different greens.
+ */
 :root {
-  --bg: #f6f7f5;
-  --s: #fff;
-  --ink: #1d2625;
-  --mut: #66726f;
-  --line: #e2e6e3;
-  --ac: #2a6f4f;
-  --g: #2e7d4f;
-  --a: #b7791f;
-  --r: #c0392b;
-  --b: #2b6a9a;
-  box-sizing: border-box;
-  padding-top: env(safe-area-inset-top, 0px);
-  padding-bottom: env(safe-area-inset-bottom, 0px);
+  --brand: #12894a;
+  --brand-strong: #12894a;
+  --ink: #0b3b2a;
+  --muted: #5b7167;
+  --canvas: #eef8f2;
+  --surface: #ffffff;
+  --line: #e3efe7;
+  --tint: #dcefe3;
+  --hover: #f6fbf8;
+  --head: #f5faf7;
+  --danger: #e5484d;
+  --warn: #e8a317;
+  --info: #3b82f6;
+  --purple: #7c5cd6;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --bg: #141a19;
-    --s: #1c2423;
-    --ink: #e8eeec;
-    --mut: #9aa7a4;
-    --line: #2c3735;
-    --ac: #58b07a;
-    --g: #58b07a;
-    --a: #d9a441;
-    --r: #e2685a;
-    --b: #6aaee0;
-  }
-}
-
-:root[data-theme="dark"] {
-  --bg: #141a19;
-  --s: #1c2423;
-  --ink: #e8eeec;
-  --mut: #9aa7a4;
-  --line: #2c3735;
-  --ac: #58b07a;
-  --g: #58b07a;
-  --a: #d9a441;
-  --r: #e2685a;
-  --b: #6aaee0;
+[data-portal="ward"] {
+  --brand: #0f8a5a;
+  --brand-strong: #0a6b47;
+  --ink: #0d3b2e;
+  --muted: #6b7f78;
+  --canvas: #eef7f3;
+  --line: #dfeee7;
+  --tint: #e3f4ec;
+  --hover: #f8fcfa;
+  --head: #f2faf6;
 }
 
 @theme inline {
-  --color-canvas: var(--bg);
-  --color-surface: var(--s);
+  --color-brand: var(--brand);
+  --color-brand-strong: var(--brand-strong);
   --color-ink: var(--ink);
-  --color-mut: var(--mut);
+  --color-muted: var(--muted);
+  --color-canvas: var(--canvas);
+  --color-surface: var(--surface);
   --color-line: var(--line);
-  --color-ac: var(--ac);
-  --color-ok: var(--g);
-  --color-warn: var(--a);
-  --color-bad: var(--r);
-  --color-info: var(--b);
-  --color-ac-soft: color-mix(in srgb, var(--ac) 12%, transparent);
-  --color-ac-faint: color-mix(in srgb, var(--ac) 5%, transparent);
-  --color-ac-wash: color-mix(in srgb, var(--ac) 4%, var(--s));
-  --breakpoint-lg: 68.8125rem;
+  --color-tint: var(--tint);
+  --color-hover: var(--hover);
+  --color-head: var(--head);
+  --color-danger: var(--danger);
+  --color-warn: var(--warn);
+  --color-info: var(--info);
+  --color-purple: var(--purple);
+  --font-sans: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
 }
 
-html {
-  scroll-padding-top: env(safe-area-inset-top, 0px);
+html,
+body {
+  height: 100%;
 }
 
 body {
   margin: 0;
-  background: var(--bg);
+  background: var(--canvas);
   color: var(--ink);
-  font: 15px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-family: var(--font-sans);
+  font-size: 14px;
+  line-height: 1.4;
+  -webkit-font-smoothing: antialiased;
 }
 
 @layer base {
-  h1 {
-    font-size: 22px;
-    margin: 0 0 4px;
-    font-weight: 700;
-  }
-  h2 {
-    font-size: 16px;
-    margin: 0 0 10px;
-    font-weight: 700;
-  }
-  h3 {
-    font-size: 12px;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    color: var(--mut);
-    margin: 0 0 8px;
-    font-weight: 600;
-  }
-  p {
-    margin: 1em 0;
-  }
   button {
     cursor: pointer;
   }

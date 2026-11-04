@@ -3,55 +3,71 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/cn";
-import type { Navigation } from "@/types";
+import type { NavItem, PortalUser } from "@/lib/types";
 
 interface SidebarProps {
-  subtitle: string;
-  navigation: Navigation;
-  wardBadge?: string;
+  brand: React.ReactNode;
+  /** Optional block under the brand, e.g. the ward badge. */
+  badge?: React.ReactNode;
+  nav: NavItem[];
+  user: PortalUser;
   open: boolean;
   onNavigate: () => void;
 }
 
-function NavItem({ href, label, active, onClick }: { href: string; label: string; active: boolean; onClick: () => void }) {
-  return (
-    <Link
-      href={href}
-      onClick={onClick}
-      className={cn("block cursor-pointer rounded-lg px-3 py-[9px]", active ? "bg-ac-soft font-semibold text-ac" : "text-mut")}
-    >
-      {label}
-    </Link>
-  );
-}
-
-export function Sidebar({ subtitle, navigation, wardBadge, open, onNavigate }: SidebarProps) {
+export function Sidebar({ brand, badge, nav, user, open, onNavigate }: SidebarProps) {
   const pathname = usePathname();
+
   return (
     <aside
       className={cn(
-        "fixed inset-y-0 left-0 z-[8] flex w-56 flex-col overflow-y-auto border-r border-line bg-surface px-3 py-5 transition-transform md:w-[180px] md:translate-x-0 lg:w-56",
+        "fixed inset-y-0 left-0 z-40 flex w-64 flex-col gap-3 overflow-y-auto bg-surface px-3 py-4 transition-transform",
+        "lg:static lg:z-auto lg:w-auto lg:translate-x-0 lg:rounded-2xl lg:border lg:border-line",
         open ? "translate-x-0" : "-translate-x-full"
       )}
     >
-      <div className="px-2.5 pb-[18px] font-bold text-ac">
-        Kathmandu Waste Management
-        <span className="block text-xs font-normal text-mut">{subtitle}</span>
+      {brand}
+      {badge}
+      <nav className="flex flex-1 flex-col gap-0.5">
+        {nav.map(({ href, label, icon: Icon }) => {
+          const active = pathname === href;
+          return (
+            <Link
+              key={href}
+              href={href}
+              onClick={onNavigate}
+              aria-current={active ? "page" : undefined}
+              className={cn(
+                "flex items-center gap-3 rounded-[10px] px-3 py-2.5 text-[13.5px] transition-colors",
+                active ? "bg-tint font-semibold text-brand-strong [&>svg]:text-brand" : "text-ink hover:bg-hover"
+              )}
+            >
+              <Icon className="size-[18px] flex-none" />
+              {label}
+            </Link>
+          );
+        })}
+      </nav>
+      <div className="flex items-center gap-2.5 rounded-xl border border-line p-2.5">
+        <span className="grid size-9 flex-none place-items-center rounded-full bg-tint text-xs font-bold text-brand-strong">{user.initials}</span>
+        <div className="min-w-0">
+          <b className="block truncate text-[13px]">{user.name}</b>
+          <small className="block text-xs text-muted">{user.role}</small>
+        </div>
       </div>
-      {wardBadge && <div className="mb-4 rounded-lg bg-ac-soft px-3 py-2 font-semibold text-ac">{wardBadge}</div>}
-      <nav className="flex-1">
-        {navigation.main.map((n) => (
-          <NavItem key={n.href} href={n.href} label={n.label} active={pathname === n.href} onClick={onNavigate} />
-        ))}
-      </nav>
-      <nav>
-        <NavItem
-          href={navigation.secondary.href}
-          label={navigation.secondary.label}
-          active={pathname === navigation.secondary.href}
-          onClick={onNavigate}
-        />
-      </nav>
     </aside>
+  );
+}
+
+/** Logo block used at the top of the sidebar. */
+export function Brand({ icon, title, subtitle }: { icon: React.ReactNode; title: React.ReactNode; subtitle?: string }) {
+  return (
+    <div className="flex items-center gap-2.5 px-1.5 pb-2 font-bold leading-tight">
+      <span className="grid size-10 flex-none place-items-center rounded-[10px] bg-brand text-white [&>svg]:size-[22px]">{icon}</span>
+      <div className="min-w-0">
+        {title}
+        {subtitle && <small className="block text-xs font-normal text-muted">{subtitle}</small>}
+      </div>
+    </div>
   );
 }

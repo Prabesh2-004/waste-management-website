@@ -1,4 +1,4 @@
-import { KmcReports } from "@/components/kmc/reports/KmcReports";
+import { KmcReports } from "@/components/kmc/KmcReports";
 
 export default function Page() {
   return <KmcReports />;

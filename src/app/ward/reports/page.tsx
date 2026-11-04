@@ -1,4 +1,4 @@
-import { WardReports } from "@/components/ward/reports/WardReports";
+import { WardReports } from "@/components/ward/WardReports";
 
 export default function Page() {
   return <WardReports />;
