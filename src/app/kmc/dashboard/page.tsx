@@ -1,4 +1,4 @@
-import { KmcDashboard } from "@/components/kmc/dashboard/KmcDashboard";
+import { KmcDashboard } from "@/components/kmc/KmcDashboard";
 
 export default function Page() {
   return <KmcDashboard />;

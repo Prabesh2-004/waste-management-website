@@ -1,4 +1,4 @@
-import { KmcAwareness } from "@/components/kmc/awareness/KmcAwareness";
+import { KmcAwareness } from "@/components/kmc/KmcAwareness";
 
 export default function Page() {
   return <KmcAwareness />;

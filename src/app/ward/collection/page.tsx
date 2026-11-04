@@ -1,4 +1,4 @@
-import { WardCollection } from "@/components/ward/collection/WardCollection";
+import { WardCollection } from "@/components/ward/WardCollection";
 
 export default function Page() {
   return <WardCollection />;
