@@ -1,74 +1,48 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { AppShell } from "@/components/layout/AppShell";
-import { AuthCard } from "@/components/auth/AuthCard";
-import { WardSelectCard } from "@/components/auth/WardSelectCard";
-import { UiProvider } from "@/context/UiContext";
-import { WardProvider, useWard } from "@/context/WardContext";
-import navigation from "@/data/ward/navigation.json";
-import userData from "@/data/ward/user.json";
-import meta from "@/data/shared/meta.json";
-
-function WardGate({ children }: { children: React.ReactNode }) {
-  const { authed, needsWardSelection, signIn, enterWard, user, wardName, notifications, seen, markSeen } = useWard();
-  const router = useRouter();
-
-  if (!authed && needsWardSelection) {
-    return (
-      <WardSelectCard
-        wardCount={meta.wardCount}
-        defaultWard={userData.ward}
-        onContinue={(ward) => {
-          enterWard(ward);
-          router.push("/ward/dashboard");
-        }}
-      />
-    );
-  }
-
-  if (!authed) {
-    return (
-      <AuthCard
-        portalLabel="Ward staff portal"
-        rolePlaceholder="e.g. Ward Secretary"
-        fallbackRole="Ward Staff"
-        defaultEmail={userData.email}
-        onAuthenticate={signIn}
-      />
-    );
-  }
-
-  return (
-    <AppShell
-      subtitle="Ward portal"
-      navigation={navigation}
-      wardBadge={wardName}
-      topbarLeft={
-        <div className="flex min-w-0 flex-wrap items-center gap-x-[18px]">
-          <b>{wardName}</b>
-          <span className="truncate text-[13px] text-mut max-sm:hidden">
-            {meta.cityName} · {meta.todayLabel}
-          </span>
-        </div>
-      }
-      notifications={notifications}
-      seen={seen}
-      onNotificationsOpen={markSeen}
-      userName={user.name}
-      pageWidthClass="max-w-[1100px]"
-    >
-      {children}
-    </AppShell>
-  );
-}
+import { Landmark, Leaf } from "lucide-react";
+import { Brand } from "@/components/layout/Sidebar";
+import { PortalShell } from "@/components/layout/PortalShell";
+import { WardProvider } from "@/context/WardContext";
+import { CITY_NAME } from "@/data/shared";
+import { WARD_NAME, WARD_NAV, WARD_USER } from "@/data/ward";
+import { SkyArt } from "./SkyArt";
+import { StopsModal } from "./StopsModal";
 
 export function WardPortal({ children }: { children: React.ReactNode }) {
   return (
     <WardProvider>
-      <UiProvider toastMs={3600}>
-        <WardGate>{children}</WardGate>
-      </UiProvider>
+      <PortalShell
+        portal="ward"
+        name={`${WARD_NAME} · Waste Management`}
+        nav={WARD_NAV}
+        user={WARD_USER}
+        brand={
+          <Brand
+            icon={<Leaf />}
+            title={
+              <>
+                Ward Waste
+                <br />
+                Management
+              </>
+            }
+          />
+        }
+        badge={
+          <div className="flex items-center gap-2 rounded-[10px] bg-tint p-2.5 font-semibold">
+            <Landmark className="size-5 flex-none text-brand" />
+            <span>
+              {WARD_NAME}
+              <small className="block text-xs font-normal text-muted">{CITY_NAME}</small>
+            </span>
+          </div>
+        }
+        headerExtra={<SkyArt />}
+      >
+        {children}
+        <StopsModal />
+      </PortalShell>
     </WardProvider>
   );
 }
