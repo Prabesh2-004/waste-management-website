@@ -3,6 +3,7 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "Kathmandu Waste Management",
+  description: "KMC and ward portals for waste collection, vehicles, awareness programs and complaints.",
 };
 
 export const viewport: Viewport = {
