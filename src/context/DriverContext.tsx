@@ -17,6 +17,8 @@ type Outcome = "completed" | "delayed" | "incomplete";
 /** Send a GPS fix at most this often, unless the truck moved further than SEND_METRES. */
 const SEND_EVERY_MS = 5000;
 const SEND_METRES = 25;
+/** Don't share fixes rougher than this (metres): they are Wi-Fi/cell estimates that make the truck jump. */
+export const SEND_MAX_ACCURACY_M = 100;
 
 interface DriverContextValue {
   ready: boolean;
@@ -162,6 +164,7 @@ export function DriverProvider({ children }: { children: ReactNode }) {
     }
     prevFix.current = fix;
     if (!sharing || !vehicleId) return;
+    if (!fix.simulated && fix.accuracy != null && fix.accuracy > SEND_MAX_ACCURACY_M) return;
     const last = sent.current;
     const moved = last ? distanceKm(last.pos, fix) * 1000 : Infinity;
     if (last && Date.now() - last.at < SEND_EVERY_MS && moved < SEND_METRES) return;

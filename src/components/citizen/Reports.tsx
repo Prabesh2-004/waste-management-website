@@ -77,7 +77,8 @@ function Wizard({ onDone, onCancel }: { onDone: (r: CitizenReport) => void; onCa
 
   // "Use my location": fill in the nearest collection stop and its route.
   useEffect(() => {
-    if (!locate || !gps.fix) return;
+    // Wait for a precise fix: the first one is usually a rough Wi-Fi/cell estimate.
+    if (!locate || !gps.fix || !gps.settled) return;
     const near = routes.flatMap((r) => r.stops.map((s) => ({ r, s, km: distanceKm(gps.fix!, s) }))).sort((a, b) => a.km - b.km)[0];
     if (near && near.km < 3) {
       setLocation(`Near ${near.s.name}`);
@@ -86,7 +87,7 @@ function Wizard({ onDone, onCancel }: { onDone: (r: CitizenReport) => void; onCa
       setLocation(`GPS ${gps.fix.lat.toFixed(5)}, ${gps.fix.lng.toFixed(5)}`);
     }
     setLocate(false);
-  }, [locate, gps.fix, routes]);
+  }, [locate, gps.fix, gps.settled, routes]);
 
   useEffect(() => () => void (photo && URL.revokeObjectURL(photo.url)), [photo]);
 
