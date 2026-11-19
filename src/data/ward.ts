@@ -1,9 +1,10 @@
-import { CalendarDays, ChartColumn, FileText, House, Megaphone, Truck } from "lucide-react";
+import { CalendarDays, ChartColumn, FileText, House, Megaphone, MessageSquareText, Truck } from "lucide-react";
 import { exceptionReasonFor, type RouteMeta, type Stop, type StopStatus } from "@/lib/collection";
 import type { NavItem, PortalUser } from "@/lib/types";
 import { DEMO_DATE } from "./shared";
 
-export const WARD_NAME = "Ward 17";
+export const WARD_NUMBER = 17;
+export const WARD_NAME = `Ward ${WARD_NUMBER}`;
 export const WARD_USER: PortalUser = { name: "Roza Shrestha", role: "Ward Official", initials: "RS" };
 
 export const WARD_NAV: NavItem[] = [
@@ -13,6 +14,7 @@ export const WARD_NAV: NavItem[] = [
   { href: "/ward/awareness", label: "Awareness Programs", icon: Megaphone, title: "Awareness Programs", subtitle: "Build a cleaner, healthier and more sustainable Ward 17" },
   { href: "/ward/performance", label: "Ward Updates & Performance", icon: ChartColumn, title: "Ward Updates & Performance", subtitle: "Share updates, keep the community informed and track your ward’s progress" },
   { href: "/ward/reports", label: "Reports & Complaints", icon: FileText, title: "Reports & Complaints", subtitle: "Review open complaints and download ward reports" },
+  { href: "/ward/sms", label: "SMS Alerts", icon: MessageSquareText, title: "SMS Alerts", subtitle: "Text collection alerts to residents of Ward 17" },
 ];
 
 /* ---------- Collection (deterministic demo data shared by Dashboard and Collection) ---------- */

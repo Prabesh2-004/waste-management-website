@@ -1,4 +1,4 @@
-import { CalendarDays, ChartColumn, ClipboardList, FileText, Landmark, Megaphone, Truck } from "lucide-react";
+import { CalendarDays, ChartColumn, ClipboardList, FileText, Landmark, Megaphone, MessageSquareText, ScanLine, Truck } from "lucide-react";
 import type { NavItem, PortalUser } from "@/lib/types";
 
 export const KMC_USER: PortalUser = { name: "Roza Shrestha", role: "KMC Officer", initials: "RS" };
@@ -11,6 +11,8 @@ export const KMC_NAV: NavItem[] = [
   { href: "/kmc/monitoring", label: "Ward Monitoring", icon: ChartColumn, title: "Ward Monitoring", subtitle: "Track ward performance and identify areas that need city-level support" },
   { href: "/kmc/updates", label: "Updates & Information", icon: FileText, title: "Updates & Information", subtitle: "Latest news, announcements, reports and important information" },
   { href: "/kmc/reports", label: "Reports & Complaints", icon: ClipboardList, title: "Reports & Complaints", subtitle: "Track and manage escalated, cross-ward and city-level complaints" },
+  { href: "/kmc/identify", label: "Identify Waste", icon: ScanLine, title: "Identify Waste", subtitle: "Sort waste photos from any ward with the waste classifier" },
+  { href: "/kmc/sms", label: "SMS Alerts", icon: MessageSquareText, title: "SMS Alerts", subtitle: "Text collection alerts to residents of any ward" },
 ];
 
 /* ---------- Ward map ---------- */

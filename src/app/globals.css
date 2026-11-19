@@ -1,11 +1,90 @@
 @import "tailwindcss";
 
-/*
- * Design tokens taken from the two HTML prototypes in docs/prototypes.
- * The KMC palette is the default; the ward portal sets data-portal="ward"
- * on its shell to switch to the ward prototype's slightly different greens.
- */
+/* Palette from the UI reference designs (UI/): deep green accent on a soft mint canvas. */
 :root {
+  color-scheme: light;
+  --bg: #f3f8f5;
+  --s: #fff;
+  --ink: #12302a;
+  --mut: #5d7069;
+  --line: #e1ebe5;
+  --ac: #15824c;
+  --ac-strong: #0e6a3c;
+  --g: #16a34a;
+  --a: #d97706;
+  --r: #dc2626;
+  --b: #2563eb;
+  --p: #7c3aed;
+  --shadow: 0 1px 2px rgb(16 48 36 / 0.04), 0 4px 16px rgb(16 48 36 / 0.05);
+  --canvas: var(--bg);
+  --surface: var(--s);
+  --warn: var(--a);
+  --info: var(--b);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --bg: #0f1715;
+    --s: #17221f;
+    --ink: #e6efeb;
+    --mut: #9bb0a8;
+    --line: #26352f;
+    --ac: #3fbf7a;
+    --ac-strong: #2fa765;
+    --g: #4ade80;
+    --a: #fbbf24;
+    --r: #f87171;
+    --b: #60a5fa;
+    --p: #a78bfa;
+    --shadow: 0 1px 2px rgb(0 0 0 / 0.3);
+    --canvas: var(--bg);
+    --surface: var(--s);
+    --warn: var(--a);
+    --info: var(--b);
+  }
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #0f1715;
+  --s: #17221f;
+  --ink: #e6efeb;
+  --mut: #9bb0a8;
+  --line: #26352f;
+  --ac: #3fbf7a;
+  --ac-strong: #2fa765;
+  --g: #4ade80;
+  --a: #fbbf24;
+  --r: #f87171;
+  --b: #60a5fa;
+  --p: #a78bfa;
+  --shadow: 0 1px 2px rgb(0 0 0 / 0.3);
+  --canvas: var(--bg);
+  --surface: var(--s);
+  --warn: var(--a);
+  --info: var(--b);
+}
+
+/*
+ * KMC and ward portals (PortalShell sets data-portal). Design tokens come from the
+ * HTML prototypes in docs/prototypes; the portals are light-only, so the app palette
+ * is reset to its light values here as well (Identify Waste and SMS Alerts use it).
+ */
+[data-portal] {
+  color-scheme: light;
+  --bg: #eef8f2;
+  --s: #fff;
+  --mut: #5b7167;
+  --ac: #12894a;
+  --ac-strong: #0e6a3c;
+  --g: #16a34a;
+  --a: #d97706;
+  --r: #dc2626;
+  --b: #2563eb;
+  --p: #7c3aed;
+  --shadow: 0 1px 2px rgb(16 48 36 / 0.04), 0 4px 16px rgb(16 48 36 / 0.05);
+
   --brand: #12894a;
   --brand-strong: #12894a;
   --ink: #0b3b2a;
@@ -20,14 +99,21 @@
   --warn: #e8a317;
   --info: #3b82f6;
   --purple: #7c5cd6;
+
+  font-family: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+  font-size: 14px;
+  line-height: 1.4;
+  -webkit-font-smoothing: antialiased;
 }
 
 [data-portal="ward"] {
   --brand: #0f8a5a;
   --brand-strong: #0a6b47;
+  --ac: #0f8a5a;
   --ink: #0d3b2e;
   --muted: #6b7f78;
   --canvas: #eef7f3;
+  --bg: #eef7f3;
   --line: #dfeee7;
   --tint: #e3f4ec;
   --hover: #f8fcfa;
@@ -35,40 +121,166 @@
 }
 
 @theme inline {
-  --color-brand: var(--brand);
-  --color-brand-strong: var(--brand-strong);
-  --color-ink: var(--ink);
-  --color-muted: var(--muted);
   --color-canvas: var(--canvas);
   --color-surface: var(--surface);
+  --color-ink: var(--ink);
+  --color-mut: var(--mut);
   --color-line: var(--line);
+  --color-ac: var(--ac);
+  --color-ac-strong: var(--ac-strong);
+  --color-ok: var(--g);
+  --color-warn: var(--warn);
+  --color-bad: var(--r);
+  --color-info: var(--info);
+  --color-violet: var(--p);
+  --color-ac-soft: color-mix(in srgb, var(--ac) 12%, transparent);
+  --color-ac-faint: color-mix(in srgb, var(--ac) 5%, transparent);
+  --color-ac-wash: color-mix(in srgb, var(--ac) 5%, var(--s));
+  --color-ok-soft: color-mix(in srgb, var(--g) 13%, transparent);
+  --color-warn-soft: color-mix(in srgb, var(--a) 14%, transparent);
+  --color-bad-soft: color-mix(in srgb, var(--r) 12%, transparent);
+  --color-info-soft: color-mix(in srgb, var(--b) 12%, transparent);
+  --color-violet-soft: color-mix(in srgb, var(--p) 12%, transparent);
+  --shadow-card: var(--shadow);
+  --breakpoint-lg: 68.8125rem;
+  --font-sans: var(--font-app), system-ui, -apple-system, "Segoe UI", sans-serif;
+
+  /* KMC and ward portal tokens (see [data-portal] below) */
+  --color-brand: var(--brand);
+  --color-brand-strong: var(--brand-strong);
+  --color-muted: var(--muted);
   --color-tint: var(--tint);
   --color-hover: var(--hover);
   --color-head: var(--head);
   --color-danger: var(--danger);
-  --color-warn: var(--warn);
-  --color-info: var(--info);
   --color-purple: var(--purple);
-  --font-sans: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
 }
 
-html,
-body {
-  height: 100%;
+html {
+  scroll-padding-top: env(safe-area-inset-top, 0px);
+  -webkit-text-size-adjust: 100%;
 }
 
 body {
   margin: 0;
-  background: var(--canvas);
+  background: var(--bg);
   color: var(--ink);
-  font-family: var(--font-sans);
-  font-size: 14px;
-  line-height: 1.4;
-  -webkit-font-smoothing: antialiased;
+  font: 15px/1.5 var(--font-sans);
+  -webkit-tap-highlight-color: transparent;
 }
 
 @layer base {
+  h1 {
+    font-size: 26px;
+    line-height: 1.2;
+    margin: 0 0 4px;
+    font-weight: 750;
+    letter-spacing: -0.01em;
+  }
+  h2 {
+    font-size: 17px;
+    margin: 0 0 12px;
+    font-weight: 700;
+  }
+  h3 {
+    font-size: 12px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--mut);
+    margin: 0 0 8px;
+    font-weight: 600;
+  }
+  p {
+    margin: 1em 0;
+  }
   button {
     cursor: pointer;
   }
+  button:disabled {
+    cursor: not-allowed;
+  }
+  [data-portal] :where(h1, h2, h3, p):not(:where([data-app-kit] *)) {
+    margin: 0;
+    font-size: inherit;
+    font-weight: inherit;
+    line-height: inherit;
+    letter-spacing: normal;
+    text-transform: none;
+    color: inherit;
+  }
+  :focus-visible {
+    outline: 2px solid var(--ac);
+    outline-offset: 2px;
+  }
+  /* Phones zoom into inputs smaller than 16px; keep form controls at 16px there. */
+  @media (max-width: 767px) {
+    input,
+    select,
+    textarea {
+      font-size: 16px !important;
+    }
+  }
+}
+
+/* Leaflet sits under our overlays (drawers z-9, toasts z-20). */
+.leaflet-container {
+  font: inherit;
+  z-index: 0;
+  background: color-mix(in srgb, var(--ac) 6%, var(--s));
+}
+.leaflet-pane,
+.leaflet-top,
+.leaflet-bottom {
+  z-index: 1 !important;
+}
+.leaflet-control-container .leaflet-top,
+.leaflet-control-container .leaflet-bottom {
+  z-index: 2 !important;
+}
+/* Softer, greener map tiles like the reference designs; darkened in dark mode. */
+.osm-tiles {
+  filter: saturate(0.55) brightness(1.04);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .osm-tiles {
+    filter: invert(0.92) hue-rotate(180deg) saturate(0.4) brightness(0.9);
+  }
+}
+:root[data-theme="dark"] .osm-tiles {
+  filter: invert(0.92) hue-rotate(180deg) saturate(0.4) brightness(0.9);
+}
+.map-pin {
+  background: none;
+  border: 0;
+}
+.truck-pulse {
+  animation: truck-pulse 1.8s ease-out infinite;
+}
+@keyframes truck-pulse {
+  0% {
+    transform: scale(0.6);
+    opacity: 0.7;
+  }
+  100% {
+    transform: scale(2.2);
+    opacity: 0;
+  }
+}
+.scan-line {
+  animation: scan 2.4s ease-in-out infinite;
+}
+@keyframes scan {
+  0%,
+  100% {
+    top: 8%;
+  }
+  50% {
+    top: 88%;
+  }
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  scrollbar-width: none;
 }

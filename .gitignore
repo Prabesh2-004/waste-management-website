@@ -3,3 +3,13 @@ node_modules
 out
 next-env.d.ts
 *.tsbuildinfo
+.env
+.env*.local
+
+# Self-signed dev certificates (scripts/dev-mobile.sh)
+certificates
+
+# Playwright
+e2e/.runtime/
+e2e/.results/
+e2e/.report/
