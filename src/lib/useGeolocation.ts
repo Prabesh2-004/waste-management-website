@@ -39,6 +39,23 @@ function bearing(a: LatLng, b: LatLng): number {
   return ((Math.atan2(y, x) * 180) / Math.PI + 360) % 360;
 }
 
+/** A fix this precise (metres) is trusted straight away. */
+export const GOOD_ACCURACY_M = 30;
+/** How long to wait for a precise fix before settling for the best one so far. */
+const SETTLE_MS = 15000;
+/** Replace a fix with a less precise one only once it is this old. */
+const STALE_MS = 20000;
+
+/**
+ * Phones report a rough Wi-Fi/cell-tower position first and the satellite fix later, and
+ * keep mixing in rough readings indoors. Keep a new reading only if it is precise, at least
+ * as precise as the current one, or the current one has gone stale.
+ */
+function better(next: Fix, cur: Fix | null): boolean {
+  if (!cur || next.accuracy == null || cur.accuracy == null) return true;
+  return next.accuracy <= GOOD_ACCURACY_M || next.accuracy <= cur.accuracy || next.at - cur.at > STALE_MS;
+}
+
 /** Simulated truck speed (m/s) and how much faster than real time the simulation runs. */
 const SIM_SPEED_MS = 8;
 const SIM_TIME_SCALE = 6;
@@ -54,6 +71,7 @@ export function useGeolocation(enabled: boolean) {
   const [attempt, setAttempt] = useState(0);
   const sim = useRef<ReturnType<typeof setInterval> | null>(null);
   const [simulating, setSimulating] = useState(false);
+  const [waited, setWaited] = useState(false);
 
   const stopSimulation = useCallback(() => {
     if (sim.current) clearInterval(sim.current);
@@ -73,26 +91,35 @@ export function useGeolocation(enabled: boolean) {
     }
     setStatus("requesting");
     setError(null);
+    // Start fresh: a position from an earlier session may be far away by now.
+    setFix(null);
+    setWaited(false);
+    const settle = setTimeout(() => setWaited(true), SETTLE_MS);
     const id = navigator.geolocation.watchPosition(
       (p) => {
         setStatus("tracking");
         setError(null);
-        setFix({
+        const next: Fix = {
           lat: p.coords.latitude,
           lng: p.coords.longitude,
           accuracy: p.coords.accuracy ?? null,
           heading: Number.isFinite(p.coords.heading) ? p.coords.heading : null,
           speed: Number.isFinite(p.coords.speed) ? p.coords.speed : null,
           at: p.timestamp || Date.now(),
-        });
+        };
+        setFix((cur) => (cur?.simulated || better(next, cur) ? next : cur));
       },
       (e) => {
         setStatus("error");
         setError(gpsError(e));
       },
-      { enableHighAccuracy: true, maximumAge: 5000, timeout: 20000 }
+      // maximumAge 0: never reuse a cached (possibly rough or old) position.
+      { enableHighAccuracy: true, maximumAge: 0, timeout: 20000 }
     );
-    return () => navigator.geolocation.clearWatch(id);
+    return () => {
+      clearTimeout(settle);
+      navigator.geolocation.clearWatch(id);
+    };
   }, [enabled, simulating, attempt]);
 
   /** Drive along `path` (first point = start). Each real second covers SIM_TIME_SCALE seconds of driving. */
@@ -134,8 +161,12 @@ export function useGeolocation(enabled: boolean) {
   useEffect(() => () => stopSimulation(), [stopSimulation]);
   const retry = useCallback(() => setAttempt((a) => a + 1), []);
 
+  /** True once the fix is precise, or the wait for a precise one is over. */
+  const settled = !!fix && (fix.simulated || fix.accuracy == null || fix.accuracy <= GOOD_ACCURACY_M || waited);
+
   return {
     fix,
+    settled,
     status: simulating ? ("simulating" as const) : status,
     error,
     simulating,

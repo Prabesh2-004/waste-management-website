@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/Button";
 import { Input, Label } from "@/components/ui/Field";
 import { Pill } from "@/components/ui/Status";
 import { Segmented } from "@/components/ui/Tabs";
-import { useDriver } from "@/context/DriverContext";
+import { SEND_MAX_ACCURACY_M, useDriver } from "@/context/DriverContext";
 import { useUi } from "@/context/UiContext";
 import { cn } from "@/lib/cn";
 import { ago, clock, estimateRoute, formatKm, formatMinutes } from "@/lib/eta";
@@ -170,7 +170,13 @@ export function DriverRoute() {
           <div className="flex flex-wrap items-center justify-between gap-2">
             <span className="flex items-center gap-2">
               <span className={cn("h-2.5 w-2.5 rounded-full", fix ? "animate-pulse bg-ok" : "bg-warn")} />
-              {gpsStatus === "simulating" ? "Simulated drive" : fix ? "Sharing live location" : "Finding your position…"}
+              {gpsStatus === "simulating"
+                ? "Simulated drive"
+                : !fix
+                  ? "Finding your position…"
+                  : fix.accuracy != null && fix.accuracy > SEND_MAX_ACCURACY_M
+                    ? "Waiting for a precise GPS fix…"
+                    : "Sharing live location"}
               {fix?.accuracy != null && gpsStatus !== "simulating" && <span className="text-mut">±{Math.round(fix.accuracy)} m</span>}
             </span>
             <span className="text-xs text-mut">
