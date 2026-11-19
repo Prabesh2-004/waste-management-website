@@ -4,7 +4,9 @@ import { useEffect, useState } from "react";
 import type { FormEvent } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { ArrowRight, Building2, Eye, EyeOff, Home, Landmark, Truck } from "lucide-react";
-import { Logo, Skyline } from "@/components/brand/Brand";
+import { Logo } from "@/components/brand/Brand";
+import { ValleyScene } from "@/components/brand/ValleyScene";
+import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { Button } from "@/components/ui/Button";
 import { Input, Label, Select } from "@/components/ui/Field";
 import { authenticate, errorMessage, loadToken, saveToken } from "@/lib/api";
@@ -50,22 +52,28 @@ export function LoginPage() {
 
   return (
     <main className="min-h-dvh bg-canvas lg:grid lg:grid-cols-[minmax(0,1fr)_520px]">
-      {/* Hero: a green band on phones, a full panel on desktop. */}
-      <section className="relative overflow-hidden bg-ac px-5 pb-16 pt-[max(28px,env(safe-area-inset-top))] text-white lg:flex lg:flex-col lg:justify-between lg:p-14">
+      {/* Hero: a green band on phones, a full panel on desktop, with the valley drawn behind. */}
+      <section className="relative overflow-hidden bg-ac px-5 pb-36 pt-[max(28px,env(safe-area-inset-top))] text-white lg:p-14">
+        {/* Phones: a strip under the text (its bottom 40px sits behind the card). Desktop: the whole panel. */}
+        <ValleyScene className="absolute inset-x-0 bottom-0 h-[150px] w-full lg:h-full" />
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_bottom,rgb(0_0_0/0.16),transparent_55%)] lg:bg-[linear-gradient(to_bottom,rgb(0_0_0/0.18),transparent_45%)]"
+        />
         <div className="relative z-[1] flex items-center gap-3">
           <Logo size={44} className="bg-white/15" />
-          <div>
+          <div className="min-w-0 flex-1">
             <b className="block text-lg leading-tight">Clean Kathmandu</b>
             <span className="text-sm text-white/80">{meta.cityName}</span>
           </div>
+          <ThemeToggle variant="onAccent" />
         </div>
-        <div className="relative z-[1] mt-6 max-w-xl lg:mt-0">
-          <h1 className="text-[26px] text-white lg:text-[44px]">Cleaner streets, healthier communities.</h1>
-          <p className="mb-0 mt-2 text-white/85 lg:text-lg">
+        <div className="relative z-[1] mt-6 max-w-xl lg:mt-16">
+          <h1 className="text-[26px] text-white [text-shadow:0_1px_12px_rgb(0_0_0/0.18)] lg:text-[44px]">Cleaner streets, healthier communities.</h1>
+          <p className="mb-0 mt-2 text-white/90 lg:text-lg">
             One sign-in for residents, collection drivers, ward offices and KMC. Choose who you are to continue.
           </p>
         </div>
-        <Skyline className="absolute bottom-0 right-0 h-24 w-[min(520px,100%)] text-white/25 lg:h-40" />
       </section>
 
       <section className="relative z-[2] -mt-10 px-4 pb-10 lg:mt-0 lg:flex lg:items-center lg:px-10">

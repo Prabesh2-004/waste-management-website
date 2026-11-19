@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
+import { THEME_SCRIPT } from "@/lib/theme";
 
 const font = Plus_Jakarta_Sans({ subsets: ["latin"], variable: "--font-app", display: "swap" });
 
@@ -19,7 +20,11 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={font.variable}>
+    // The head script may set data-theme before React hydrates, hence suppressHydrationWarning.
+    <html lang="en" className={font.variable} suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: THEME_SCRIPT }} />
+      </head>
       <body>{children}</body>
     </html>
   );
