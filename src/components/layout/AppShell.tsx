@@ -7,6 +7,7 @@ import { Sidebar, initials } from "./Sidebar";
 import { NotificationMenu } from "./NotificationMenu";
 import { Skyline } from "@/components/brand/Brand";
 import type { Navigation, NotificationItem } from "@/types";
+import { ThemeToggle } from "@/components/ui/ThemeToggle";
 
 interface AppShellProps {
   title: string;
@@ -87,6 +88,7 @@ export function AppShell({
                 <CalendarDays size={15} /> {date}
               </span>
             )}
+            <ThemeToggle />
             <NotificationMenu notifications={notifications} seen={seen} onOpen={onNotificationsOpen} />
             <span className="hidden items-center gap-2 sm:flex">
               <span className="grid h-9 w-9 place-items-center rounded-full bg-ac-soft text-[13px] font-bold text-ac">{initials(userName)}</span>

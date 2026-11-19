@@ -9,6 +9,7 @@ import { Skyline } from "@/components/brand/Brand";
 import { useUi } from "@/context/UiContext";
 import { cn } from "@/lib/cn";
 import type { NotificationItem } from "@/types";
+import { ThemeToggle } from "@/components/ui/ThemeToggle";
 
 export interface MobileNavItem {
   href: string;
@@ -66,6 +67,7 @@ export function MobileShell({ header, nav, notifications, unread, onNotification
             <div className="min-w-0 flex-1">{header}</div>
             <div className="flex shrink-0 items-center gap-2">
               {headerAction}
+              <ThemeToggle variant="onAccent" />
               <button
                 type="button"
                 aria-label="Notifications"
