@@ -5,11 +5,11 @@
       "href": "/ward/dashboard"
     },
     {
-      "label": "Collection",
+      "label": "Collection Management",
       "href": "/ward/collection"
     },
     {
-      "label": "Awareness",
+      "label": "Awareness Programs",
       "href": "/ward/awareness"
     },
     {
@@ -21,16 +21,12 @@
       "href": "/ward/reports"
     },
     {
-      "label": "Identify Waste",
-      "href": "/ward/identify"
-    },
-    {
       "label": "SMS Alerts",
       "href": "/ward/sms"
     }
   ],
   "secondary": {
-    "label": "Profile / Settings",
+    "label": "Profile & Settings",
     "href": "/ward/settings"
   }
 }

@@ -58,3 +58,13 @@ The HTML only changed layout at 1100px and kept a fixed sidebar. Now:
 - Rows that open drawers or modals are keyboard accessible.
 - Vehicle select in the route dialogs falls back to the first available vehicle when the current one is in maintenance, as a browser `<select>` did in the HTML.
 - A landing page at `/` links to both portals, since the two HTML files were separate.
+
+## Sections, login and mobile (added later)
+
+- `/` is the only login page. It has four sections (Citizen, Driver, Ward staff, KMC staff); each saves its own token (`localStorage`, key `kwm-token-<section>`) and goes to `/citizen`, `/driver`, `/ward` or `/kmc`. Signed-out visitors to a section are sent to `/?role=<section>`.
+- `CitizenContext` and `DriverContext` follow the same pattern as the staff contexts. `components/mobile/MobileShell` is the phone layout (green header, bottom navigation) for both; on a desktop it is a phone-width column.
+- `UiProvider` holds overlay and toast state; `OverlayHost` draws them and sits inside each section's data provider, so drawers and modals can use `useWard()`, `useCitizen()` and so on. (Before this, drawers rendered outside the data providers and failed.)
+- Maps: `components/map/LiveMap` (Leaflet, OpenStreetMap tiles) draws routes, numbered stops, trucks and this device. `lib/useLive` polls `/api/v1/live`, `lib/useGeolocation` wraps GPS (with a simulated drive), `lib/eta` estimates travel times.
+- API calls go to this site's `/api/v1` and Next.js forwards them to the backend (`next.config.mjs`), so phones need only one address. GET requests are retried once after a dropped connection.
+- Identify Waste (`components/shared/IdentifyWaste`) starts in live-scan mode and is used by the citizen section (*Waste Help*) and the KMC portal; it is not in the ward portal.
+- `e2e/` holds the Playwright tests (`npm run test:e2e`).

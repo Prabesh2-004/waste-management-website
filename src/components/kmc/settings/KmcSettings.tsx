@@ -10,7 +10,7 @@ export function KmcSettings() {
 
   return (
     <>
-      <PageHeader title="Profile / Settings" subtitle="Your KMC account" />
+      <PageHeader title="Profile & Settings" subtitle="Your KMC account and notification preferences" />
       <SettingsForm user={user} nameLabel="Name" notifyPreferences={options.notifyPreferences} onSave={saveProfile} onChangePassword={changePassword} />
     </>
   );

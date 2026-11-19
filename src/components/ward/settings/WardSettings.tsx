@@ -11,7 +11,7 @@ export function WardSettings() {
 
   return (
     <>
-      <PageHeader title="Profile / Settings" subtitle={`${wardName} · ${meta.cityName}`} />
+      <PageHeader title="Profile & Settings" subtitle={`${wardName} · ${meta.cityName}`} />
       <SettingsForm
         user={user}
         wardLabel={wardName}

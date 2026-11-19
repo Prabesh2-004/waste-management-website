@@ -10,10 +10,10 @@ export function LogoutModal() {
       okLabel="Log out"
       onSubmit={() => {
         clearTokens();
-        window.location.reload();
+        window.location.href = "/";
       }}
     >
-      <p>You will return to the login screen.</p>
+      <p className="text-mut">You will return to the login page.</p>
     </ModalContent>
   );
 }

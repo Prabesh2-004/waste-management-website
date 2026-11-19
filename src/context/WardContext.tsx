@@ -5,7 +5,7 @@ import type { ReactNode } from "react";
 import userData from "@/data/ward/user.json";
 import options from "@/data/ward/options.json";
 import { useUi } from "@/context/UiContext";
-import { authenticate, errorMessage, loadToken, request, saveToken, todayShort } from "@/lib/api";
+import { ApiError, authenticate, errorMessage, loadToken, request, saveToken, todayShort } from "@/lib/api";
 import type { ApiUser } from "@/lib/api";
 import { formatTime } from "@/lib/format";
 import type { AwarenessProgram, NotificationItem, UpdateItem, UserProfile, Vehicle, WardUserProfile } from "@/types";
@@ -28,6 +28,7 @@ const DRIVER_OUTCOMES: Record<string, string> = { C: "completed", V: "delayed", 
 
 interface WardContextValue {
   ready: boolean;
+  loadError: string | null;
   authed: boolean;
   needsWardSelection: boolean;
   signIn: (mode: "login" | "signup", profile: UserProfile, password: string) => Promise<void>;
@@ -90,6 +91,7 @@ export function useWard(): WardContextValue {
 export function WardProvider({ children }: { children: ReactNode }) {
   const { toast } = useUi();
   const [ready, setReady] = useState(false);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [token, setToken] = useState<string | null>(null);
   const [authed, setAuthed] = useState(false);
   const [needsWardSelection, setNeedsWardSelection] = useState(false);
@@ -157,7 +159,11 @@ export function WardProvider({ children }: { children: ReactNode }) {
           setAuthed(true);
         } else setNeedsWardSelection(true);
       })
-      .catch(() => saveToken("ward", null))
+      .catch((e) => {
+        // Only a rejected token logs out; a network error keeps it so "Try again" works.
+        if (e instanceof ApiError && (e.status === 401 || e.status === 403 || e.status === 404)) saveToken("ward", null);
+        else setLoadError(errorMessage(e));
+      })
       .finally(() => setReady(true));
   }, [applyUser, loadState]);
 
@@ -435,7 +441,7 @@ export function WardProvider({ children }: { children: ReactNode }) {
 
   const value: WardContextValue = useMemo(
     () => ({
-      ready, authed, needsWardSelection, signIn, enterWard, user, saveProfile, changePassword, call,
+      ready, loadError, authed, needsWardSelection, signIn, enterWard, user, saveProfile, changePassword, call,
       wardName: `Ward ${user.ward}`,
       drivers,
       vehicles, routes, schedule, programs, updates, reports, notifications, seen,
@@ -447,7 +453,7 @@ export function WardProvider({ children }: { children: ReactNode }) {
       startProgram, completeProgram, addUpdate, simulateComplaint, saveReport,
     }),
     [
-      ready, authed, needsWardSelection, signIn, enterWard, user, saveProfile, changePassword, call, drivers, vehicles, routes, schedule, programs, updates, reports,
+      ready, loadError, authed, needsWardSelection, signIn, enterWard, user, saveProfile, changePassword, call, drivers, vehicles, routes, schedule, programs, updates, reports,
       notifications, seen, collectionTab, awarenessTab, updateFilter, reportStatusFilter, reportCategory, tons, openComplaints,
       driverOf, doneCount, completion, startRoute, submitDriverUpdate, assignVehicleToRoute, addVehicle, assignDriver,
       toggleMaintenance, changeSchedule, createProgram, decideProgram, resubmitProgram, startProgram, completeProgram,

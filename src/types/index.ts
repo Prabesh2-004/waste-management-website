@@ -1,4 +1,4 @@
-export type Tone = "G" | "A" | "R" | "B" | "";
+export type Tone = "G" | "A" | "R" | "B" | "P" | "";
 
 export interface UserProfile {
   name: string;

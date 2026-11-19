@@ -1,13 +1,14 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { AlertCircle, Inbox, MessageSquareText, Radio, Send, Users } from "lucide-react";
 import { Box } from "@/components/ui/Box";
 import { Button } from "@/components/ui/Button";
 import { Input, Label, Select, Textarea } from "@/components/ui/Field";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Row } from "@/components/ui/Row";
 import { StatStrip } from "@/components/ui/StatStrip";
-import { Dot } from "@/components/ui/Status";
+import { Dot, Pill } from "@/components/ui/Status";
 import { Chips } from "@/components/ui/Tabs";
 import { useUi } from "@/context/UiContext";
 import { errorMessage } from "@/lib/api";
@@ -146,19 +147,19 @@ export function SmsCenter({ call, subtitle, ward, wardCount }: SmsCenterProps) {
         subtitle={subtitle}
         action={
           data && (
-            <span className={`rounded-full px-3 py-1 text-[13px] font-semibold ${dummy ? "bg-warn/15 text-warn" : "bg-ok/15 text-ok"}`}>
+            <Pill tone={dummy ? "A" : "G"} className="whitespace-normal py-1.5 text-[13px]">
               <Dot tone={dummy ? "A" : "G"} />
               {dummy ? "Dummy mode: messages are logged, not delivered" : `Live: ${data.provider}`}
-            </span>
+            </Pill>
           )
         }
       />
       <StatStrip
         items={[
-          { label: "Subscribers", value: String(s?.subscribers ?? 0) },
-          { label: "SMS sent", value: String(s?.sent ?? 0) },
-          { label: "Failed", value: String(s?.failed ?? 0) },
-          { label: "Gateway", value: data ? (dummy ? "Dummy" : data.provider) : "–" },
+          { label: "Subscribers", value: String(s?.subscribers ?? 0), icon: <Users size={20} /> },
+          { label: "SMS sent", value: String(s?.sent ?? 0), icon: <Send size={20} />, tone: "G" },
+          { label: "Failed", value: String(s?.failed ?? 0), icon: <AlertCircle size={20} />, tone: "R" },
+          { label: "Gateway", value: data ? (dummy ? "Dummy" : data.provider) : "–", icon: <Radio size={20} />, tone: "B" },
         ]}
       />
       {wardCount && (
@@ -168,8 +169,7 @@ export function SmsCenter({ call, subtitle, ward, wardCount }: SmsCenterProps) {
         </div>
       )}
       <div className="grid gap-[18px] lg:grid-cols-2">
-        <Box>
-          <h3>Send SMS</h3>
+        <Box title="Send SMS" icon={<MessageSquareText size={18} />}>
           <Label className="mt-0">Templates</Label>
           <Chips items={Object.keys(templates(place))} active="" onChange={(t) => setMessage(templates(place)[t])} />
           <Label htmlFor="sms-message">Message</Label>
@@ -194,10 +194,9 @@ export function SmsCenter({ call, subtitle, ward, wardCount }: SmsCenterProps) {
             subscribers.
           </p>
         </Box>
-        <Box>
-          <h3>Subscribers {data && <span className="text-mut">({audience ?? 0})</span>}</h3>
+        <Box title={`Subscribers${data ? ` (${audience ?? 0})` : ""}`} icon={<Users size={18} />}>
           {selectedWard ? (
-            <div className="mb-3 grid grid-cols-[1fr_1fr_auto] gap-2">
+            <div className="mb-3 grid grid-cols-2 gap-2 sm:grid-cols-[1fr_1fr_auto]">
               <Input placeholder="Name" value={name} onChange={(e) => setName(e.target.value)} aria-label="Subscriber name" />
               <Input
                 placeholder="98XXXXXXXX"
@@ -206,7 +205,7 @@ export function SmsCenter({ call, subtitle, ward, wardCount }: SmsCenterProps) {
                 onChange={(e) => setPhone(e.target.value)}
                 aria-label="Subscriber phone"
               />
-              <Button onClick={addSubscriber} disabled={!phone}>
+              <Button onClick={addSubscriber} disabled={!phone} className="col-span-2 sm:col-span-1">
                 Add
               </Button>
             </div>
@@ -232,8 +231,7 @@ export function SmsCenter({ call, subtitle, ward, wardCount }: SmsCenterProps) {
           </div>
         </Box>
       </div>
-      <Box className="mt-[18px]">
-        <h3>Outbox</h3>
+      <Box className="mt-[18px]" title="Outbox" icon={<Inbox size={18} />}>
         <Chips items={OUTBOX_FILTERS} active={filter} onChange={setFilter} />
         {outbox.length ? (
           outbox.map((m) => (
