@@ -1,5 +1,6 @@
 "use client";
 
+import { Clock } from "lucide-react";
 import { LinkText } from "@/components/ui/Button";
 import { Row } from "@/components/ui/Row";
 import { ScheduleModal } from "./ScheduleModal";
@@ -12,17 +13,23 @@ export function ScheduleTab() {
   const { openModal } = useUi();
 
   return (
-    <div className="max-h-[420px] overflow-auto">
+    <div className="max-h-[560px] overflow-auto">
       {Object.keys(schedule).map((key) => {
         const n = Number(key);
         return (
           <Row key={n} onClick={() => openModal(<ScheduleModal ward={n} />)}>
-            <span>
-              <b>Ward {n}</b> <span className="text-mut">{schedule[n].k}</span>
+            <span className="flex min-w-0 items-center gap-3">
+              <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-ac-soft text-ac">
+                <Clock size={17} />
+              </span>
+              <span className="min-w-0">
+                <b>Ward {n}</b>
+                <span className="block truncate text-[13px] text-mut">
+                  {formatTime(schedule[n].t)} · {schedule[n].k}
+                </span>
+              </span>
             </span>
-            <span className="shrink-0">
-              {formatTime(schedule[n].t)} <LinkText>Change</LinkText>
-            </span>
+            <LinkText>Change</LinkText>
           </Row>
         );
       })}

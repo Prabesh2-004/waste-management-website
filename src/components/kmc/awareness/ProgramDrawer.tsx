@@ -16,12 +16,18 @@ export function ProgramDrawer({ programId }: { programId: number }) {
 
   return (
     <DrawerContent>
-      <h3>{p.n}</h3>
-      <h2>Ward {p.w}</h2>
-      <p className="text-mut">
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <h2 className="m-0">{p.n}</h2>
+          <span className="text-sm text-mut">Ward {p.w}</span>
+        </div>
+        <KmcStatus status={p.s} />
+      </div>
+      <p className="text-[13px] text-mut">
         {p.d} · {p.tm}
+        {p.loc ? ` · ${p.loc}` : ""}
       </p>
-      <p>{p.ds}</p>
+      <p className="rounded-xl bg-ac-wash px-3 py-2.5">{p.ds}</p>
       <KeyValueGrid
         items={[
           { label: "Expected", value: p.exp },
@@ -30,10 +36,10 @@ export function ProgramDrawer({ programId }: { programId: number }) {
           { label: "Status", value: <KmcStatus status={p.s} />, compact: true },
         ]}
       />
-      <p className="text-[13px] text-mut">Citizens and drivers register through their apps; the ward records attendance.</p>
+      <p className="text-[13px] text-mut">Citizens register in the Citizen section; the ward records attendance.</p>
       {p.s === "Upcoming" && (
         <Button
-          variant="outline"
+          variant="soft"
           onClick={() => {
             registerCitizens(p.id);
             toast(`${options.registrationBatch} citizens registered through the Citizen app.`);

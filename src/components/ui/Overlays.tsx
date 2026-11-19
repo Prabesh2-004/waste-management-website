@@ -12,7 +12,7 @@ export function DrawerContent({ children }: DrawerContentProps) {
   return (
     <>
       {children}
-      <p>
+      <p className="mb-0">
         <Button variant="outline" onClick={closeOverlay}>
           Close
         </Button>
@@ -34,7 +34,7 @@ export function ModalContent({ title, okLabel, onSubmit, children }: ModalConten
     <>
       <h2>{title}</h2>
       {children}
-      <p className="mt-[18px] flex gap-2">
+      <p className="mb-0 mt-5 flex gap-2">
         <Button onClick={onSubmit}>{okLabel}</Button>
         <Button variant="outline" onClick={closeOverlay}>
           Cancel

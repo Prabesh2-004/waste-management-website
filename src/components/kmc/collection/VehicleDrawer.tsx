@@ -1,10 +1,12 @@
 "use client";
 
 import { useState } from "react";
+import { Truck } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Label, Select } from "@/components/ui/Field";
 import { KeyValueGrid } from "@/components/ui/KeyValueGrid";
 import { DrawerContent } from "@/components/ui/Overlays";
+import { KmcStatus } from "../KmcStatus";
 import { useKmc } from "@/context/KmcContext";
 import { useUi } from "@/context/UiContext";
 
@@ -18,14 +20,22 @@ export function VehicleDrawer({ vehicleId }: { vehicleId: string }) {
 
   return (
     <DrawerContent>
-      <h3>Vehicle</h3>
-      <h2>{vehicle.id}</h2>
+      <div className="flex items-center gap-3">
+        <span className="grid h-11 w-11 place-items-center rounded-xl bg-ac-soft text-ac">
+          <Truck size={20} />
+        </span>
+        <div className="flex-1">
+          <h2 className="m-0">{vehicle.id}</h2>
+          <span className="text-sm text-mut">Collection vehicle · {vehicle.cap} t</span>
+        </div>
+        <KmcStatus status={vehicle.st} />
+      </div>
       <KeyValueGrid
         items={[
-          { label: "Driver", value: vehicle.drv, compact: true },
-          { label: "Capacity", value: `${vehicle.cap} t` },
+          { label: "Driver", value: vehicle.drv || "None", compact: true },
+          { label: "Capacity", value: `${vehicle.cap} t`, compact: true },
           { label: "Status", value: vehicle.st, compact: true },
-          { label: "Current route", value: route ? `Ward ${route.w} — Route ${route.n}` : "None", compact: true },
+          { label: "Current route", value: route ? `Ward ${route.w} · Route ${route.n}` : "None", compact: true },
         ]}
       />
       <p className="text-[13px] text-mut">Maintenance: {vehicle.note}</p>

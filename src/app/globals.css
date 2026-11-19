@@ -1,47 +1,54 @@
 @import "tailwindcss";
 
+/* Palette from the UI reference designs (UI/): deep green accent on a soft mint canvas. */
 :root {
-  --bg: #f6f7f5;
+  --bg: #f3f8f5;
   --s: #fff;
-  --ink: #1d2625;
-  --mut: #66726f;
-  --line: #e2e6e3;
-  --ac: #2a6f4f;
-  --g: #2e7d4f;
-  --a: #b7791f;
-  --r: #c0392b;
-  --b: #2b6a9a;
-  box-sizing: border-box;
-  padding-top: env(safe-area-inset-top, 0px);
-  padding-bottom: env(safe-area-inset-bottom, 0px);
+  --ink: #12302a;
+  --mut: #5d7069;
+  --line: #e1ebe5;
+  --ac: #15824c;
+  --ac-strong: #0e6a3c;
+  --g: #16a34a;
+  --a: #d97706;
+  --r: #dc2626;
+  --b: #2563eb;
+  --p: #7c3aed;
+  --shadow: 0 1px 2px rgb(16 48 36 / 0.04), 0 4px 16px rgb(16 48 36 / 0.05);
 }
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --bg: #141a19;
-    --s: #1c2423;
-    --ink: #e8eeec;
-    --mut: #9aa7a4;
-    --line: #2c3735;
-    --ac: #58b07a;
-    --g: #58b07a;
-    --a: #d9a441;
-    --r: #e2685a;
-    --b: #6aaee0;
+    --bg: #0f1715;
+    --s: #17221f;
+    --ink: #e6efeb;
+    --mut: #9bb0a8;
+    --line: #26352f;
+    --ac: #3fbf7a;
+    --ac-strong: #2fa765;
+    --g: #4ade80;
+    --a: #fbbf24;
+    --r: #f87171;
+    --b: #60a5fa;
+    --p: #a78bfa;
+    --shadow: 0 1px 2px rgb(0 0 0 / 0.3);
   }
 }
 
 :root[data-theme="dark"] {
-  --bg: #141a19;
-  --s: #1c2423;
-  --ink: #e8eeec;
-  --mut: #9aa7a4;
-  --line: #2c3735;
-  --ac: #58b07a;
-  --g: #58b07a;
-  --a: #d9a441;
-  --r: #e2685a;
-  --b: #6aaee0;
+  --bg: #0f1715;
+  --s: #17221f;
+  --ink: #e6efeb;
+  --mut: #9bb0a8;
+  --line: #26352f;
+  --ac: #3fbf7a;
+  --ac-strong: #2fa765;
+  --g: #4ade80;
+  --a: #fbbf24;
+  --r: #f87171;
+  --b: #60a5fa;
+  --p: #a78bfa;
+  --shadow: 0 1px 2px rgb(0 0 0 / 0.3);
 }
 
 @theme inline {
@@ -51,36 +58,49 @@
   --color-mut: var(--mut);
   --color-line: var(--line);
   --color-ac: var(--ac);
+  --color-ac-strong: var(--ac-strong);
   --color-ok: var(--g);
   --color-warn: var(--a);
   --color-bad: var(--r);
   --color-info: var(--b);
+  --color-violet: var(--p);
   --color-ac-soft: color-mix(in srgb, var(--ac) 12%, transparent);
   --color-ac-faint: color-mix(in srgb, var(--ac) 5%, transparent);
-  --color-ac-wash: color-mix(in srgb, var(--ac) 4%, var(--s));
+  --color-ac-wash: color-mix(in srgb, var(--ac) 5%, var(--s));
+  --color-ok-soft: color-mix(in srgb, var(--g) 13%, transparent);
+  --color-warn-soft: color-mix(in srgb, var(--a) 14%, transparent);
+  --color-bad-soft: color-mix(in srgb, var(--r) 12%, transparent);
+  --color-info-soft: color-mix(in srgb, var(--b) 12%, transparent);
+  --color-violet-soft: color-mix(in srgb, var(--p) 12%, transparent);
+  --shadow-card: var(--shadow);
   --breakpoint-lg: 68.8125rem;
+  --font-sans: var(--font-app), system-ui, -apple-system, "Segoe UI", sans-serif;
 }
 
 html {
   scroll-padding-top: env(safe-area-inset-top, 0px);
+  -webkit-text-size-adjust: 100%;
 }
 
 body {
   margin: 0;
   background: var(--bg);
   color: var(--ink);
-  font: 15px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif;
+  font: 15px/1.5 var(--font-sans);
+  -webkit-tap-highlight-color: transparent;
 }
 
 @layer base {
   h1 {
-    font-size: 22px;
+    font-size: 26px;
+    line-height: 1.2;
     margin: 0 0 4px;
-    font-weight: 700;
+    font-weight: 750;
+    letter-spacing: -0.01em;
   }
   h2 {
-    font-size: 16px;
-    margin: 0 0 10px;
+    font-size: 17px;
+    margin: 0 0 12px;
     font-weight: 700;
   }
   h3 {
@@ -97,4 +117,82 @@ body {
   button {
     cursor: pointer;
   }
+  button:disabled {
+    cursor: not-allowed;
+  }
+  :focus-visible {
+    outline: 2px solid var(--ac);
+    outline-offset: 2px;
+  }
+  /* Phones zoom into inputs smaller than 16px; keep form controls at 16px there. */
+  @media (max-width: 767px) {
+    input,
+    select,
+    textarea {
+      font-size: 16px !important;
+    }
+  }
+}
+
+/* Leaflet sits under our overlays (drawers z-9, toasts z-20). */
+.leaflet-container {
+  font: inherit;
+  z-index: 0;
+  background: color-mix(in srgb, var(--ac) 6%, var(--s));
+}
+.leaflet-pane,
+.leaflet-top,
+.leaflet-bottom {
+  z-index: 1 !important;
+}
+.leaflet-control-container .leaflet-top,
+.leaflet-control-container .leaflet-bottom {
+  z-index: 2 !important;
+}
+/* Softer, greener map tiles like the reference designs; darkened in dark mode. */
+.osm-tiles {
+  filter: saturate(0.55) brightness(1.04);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .osm-tiles {
+    filter: invert(0.92) hue-rotate(180deg) saturate(0.4) brightness(0.9);
+  }
+}
+:root[data-theme="dark"] .osm-tiles {
+  filter: invert(0.92) hue-rotate(180deg) saturate(0.4) brightness(0.9);
+}
+.map-pin {
+  background: none;
+  border: 0;
+}
+.truck-pulse {
+  animation: truck-pulse 1.8s ease-out infinite;
+}
+@keyframes truck-pulse {
+  0% {
+    transform: scale(0.6);
+    opacity: 0.7;
+  }
+  100% {
+    transform: scale(2.2);
+    opacity: 0;
+  }
+}
+.scan-line {
+  animation: scan 2.4s ease-in-out infinite;
+}
+@keyframes scan {
+  0%,
+  100% {
+    top: 8%;
+  }
+  50% {
+    top: 88%;
+  }
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  scrollbar-width: none;
 }

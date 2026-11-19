@@ -24,7 +24,7 @@ export function GoToWard() {
   };
 
   return (
-    <div className="w-[190px] md:w-[150px] lg:w-60">
+    <div className="w-[150px] sm:w-[190px] lg:w-60">
       <Input
         placeholder="Go to ward (e.g. 17)"
         value={value}

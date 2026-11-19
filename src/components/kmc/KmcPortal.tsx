@@ -1,46 +1,33 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { AppShell } from "@/components/layout/AppShell";
-import { AuthCard } from "@/components/auth/AuthCard";
+import { RedirectToLogin } from "@/components/auth/RedirectToLogin";
+import { SessionError } from "@/components/auth/SessionError";
 import { GoToWard } from "./GoToWard";
 import { KmcProvider, useKmc } from "@/context/KmcContext";
 import { LoadingScreen } from "@/components/ui/LoadingScreen";
-import { UiProvider } from "@/context/UiContext";
+import { OverlayHost, UiProvider } from "@/context/UiContext";
 import navigation from "@/data/kmc/navigation.json";
-import userData from "@/data/kmc/user.json";
 
 function KmcGate({ children }: { children: React.ReactNode }) {
-  const { ready, authed, signIn, user, notifications, seen, markSeen } = useKmc();
-  const router = useRouter();
+  const { ready, loadError, authed, user, notifications, seen, markSeen } = useKmc();
 
   if (!ready) return <LoadingScreen />;
-
-  if (!authed) {
-    return (
-      <AuthCard
-        portalLabel="KMC staff portal"
-        rolePlaceholder="e.g. Solid Waste Officer"
-        fallbackRole="KMC Staff"
-        defaultEmail={userData.email}
-        onAuthenticate={async (mode, profile, password) => {
-          await signIn(mode, profile, password);
-          router.push("/kmc/dashboard");
-        }}
-      />
-    );
-  }
+  if (loadError) return <SessionError message={loadError} />;
+  if (!authed) return <RedirectToLogin portal="kmc" />;
 
   return (
     <AppShell
-      subtitle="Kathmandu Metropolitan City"
+      title="Kathmandu Metropolitan City"
+      subtitle="KMC Administrative Portal"
       navigation={navigation}
       topbarLeft={<GoToWard />}
       notifications={notifications}
       seen={seen}
       onNotificationsOpen={markSeen}
       userName={user.name}
-      pageWidthClass="max-w-[1180px]"
+      userRole={user.role}
+      pageWidthClass="max-w-[1320px]"
     >
       {children}
     </AppShell>
@@ -52,6 +39,8 @@ export function KmcPortal({ children }: { children: React.ReactNode }) {
     <UiProvider toastMs={3200}>
       <KmcProvider>
         <KmcGate>{children}</KmcGate>
+        {/* Inside the data provider, so drawers and modals can read its data. */}
+        <OverlayHost />
       </KmcProvider>
     </UiProvider>
   );

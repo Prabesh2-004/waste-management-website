@@ -5,11 +5,11 @@
       "href": "/kmc/dashboard"
     },
     {
-      "label": "Collection",
+      "label": "Collection Management",
       "href": "/kmc/collection"
     },
     {
-      "label": "Awareness",
+      "label": "Awareness Programs",
       "href": "/kmc/awareness"
     },
     {
@@ -34,7 +34,7 @@
     }
   ],
   "secondary": {
-    "label": "Profile / Settings",
+    "label": "Profile & Settings",
     "href": "/kmc/settings"
   }
 }

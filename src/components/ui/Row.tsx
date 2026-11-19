@@ -22,9 +22,9 @@ export function Row({ children, onClick, block, className }: RowProps) {
       onClick={onClick}
       onKeyDown={onKeyDown}
       className={cn(
-        "gap-3 border-b border-line px-1 py-[11px] last:border-b-0 hover:bg-ac-faint",
+        "-mx-2 gap-3 rounded-xl border-b border-line px-2 py-3 last:border-b-0",
         block ? "block" : "flex items-center justify-between",
-        onClick ? "cursor-pointer" : "cursor-default",
+        onClick ? "cursor-pointer hover:bg-ac-faint" : "cursor-default",
         className
       )}
     >

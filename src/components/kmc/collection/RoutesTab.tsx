@@ -14,8 +14,9 @@ export function RoutesTab() {
   return (
     <div className="grid gap-5 lg:grid-cols-[minmax(0,1.8fr)_minmax(0,1fr)]">
       <div>
-        <h3>Active vehicles (approximate location)</h3>
+        <h3>Active vehicles by ward</h3>
         <WardMap mode="routes" />
+        <p className="mb-0 text-xs text-mut">Stylized ward layout. GPS positions are on the Overview map.</p>
       </div>
       <div>
         <h3>Routes</h3>
@@ -23,7 +24,7 @@ export function RoutesTab() {
           <Row key={r.w} onClick={() => openModal(<EditRouteModal ward={r.w} />)}>
             <span>
               <b>
-                Ward {r.w} — Route {r.n}
+                Ward {r.w} · Route {r.n}
               </b>
               <br />
               <span className="text-[13px] text-mut">

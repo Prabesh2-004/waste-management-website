@@ -1,3 +1,5 @@
+import type { ReportExtra } from "./ward";
+
 export interface WardStat {
   n: number;
   t: number;
@@ -22,7 +24,7 @@ export interface ScheduleSeed {
   kind: string;
 }
 
-export interface KmcReport {
+export interface KmcReport extends ReportExtra {
   id: number;
   ty: string;
   w: number;
@@ -31,6 +33,9 @@ export interface KmcReport {
   s: string;
   ds: string;
   c: string;
+  rt?: number | null;
+  loc?: string;
+  notes?: string[];
 }
 
 export interface NewProgramInput {

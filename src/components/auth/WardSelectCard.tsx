@@ -27,17 +27,15 @@ export function WardSelectCard({ wardCount, defaultWard, onContinue }: WardSelec
     }
   };
   return (
-    <div className="grid min-h-screen place-items-center p-5">
-      <div className="w-[380px] max-w-full rounded-xl border border-line bg-surface p-7">
+    <div className="grid min-h-dvh place-items-center p-5">
+      <div className="w-[400px] max-w-full rounded-3xl border border-line bg-surface p-6 shadow-card sm:p-7">
         <h1>Select your Ward</h1>
         <p className="text-[13px] text-mut">You will manage and see this ward only.</p>
         <Label>Ward</Label>
         <Select options={wardOptions(wardCount)} value={value} onChange={setValue} />
-        <p>
-          <Button block onClick={submit} disabled={busy}>
-            Continue
-          </Button>
-        </p>
+        <Button block size="lg" className="mt-5" onClick={submit} disabled={busy}>
+          {busy ? "Please wait…" : "Continue"}
+        </Button>
       </div>
     </div>
   );

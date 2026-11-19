@@ -5,7 +5,7 @@ import type { ReactNode } from "react";
 import userData from "@/data/kmc/user.json";
 import optionsData from "@/data/kmc/options.json";
 import { useUi } from "@/context/UiContext";
-import { authenticate, errorMessage, loadToken, request, saveToken, todayShort } from "@/lib/api";
+import { ApiError, authenticate, errorMessage, loadToken, request, saveToken, todayShort } from "@/lib/api";
 import type { ApiUser } from "@/lib/api";
 import { formatTime } from "@/lib/format";
 import type { AwarenessProgram, NotificationItem, UpdateItem, UserProfile, Vehicle } from "@/types";
@@ -28,6 +28,7 @@ type Call = <T = unknown>(path: string, opts?: { method?: string; body?: unknown
 
 interface KmcContextValue {
   ready: boolean;
+  loadError: string | null;
   authed: boolean;
   signIn: (mode: "login" | "signup", profile: UserProfile, password: string) => Promise<void>;
   user: UserProfile;
@@ -87,6 +88,7 @@ export function useKmc(): KmcContextValue {
 export function KmcProvider({ children }: { children: ReactNode }) {
   const { toast } = useUi();
   const [ready, setReady] = useState(false);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [token, setToken] = useState<string | null>(null);
   const [authed, setAuthed] = useState(false);
   const [user, setUser] = useState<UserProfile>(userData);
@@ -155,7 +157,11 @@ export function KmcProvider({ children }: { children: ReactNode }) {
         applyUser(u);
         setAuthed(true);
       })
-      .catch(() => saveToken("kmc", null))
+      .catch((e) => {
+        // Only a rejected token logs out; a network error keeps it so "Try again" works.
+        if (e instanceof ApiError && (e.status === 401 || e.status === 403 || e.status === 404)) saveToken("kmc", null);
+        else setLoadError(errorMessage(e));
+      })
       .finally(() => setReady(true));
   }, [applyUser, loadState]);
 
@@ -323,6 +329,7 @@ export function KmcProvider({ children }: { children: ReactNode }) {
   const value: KmcContextValue = useMemo(
     () => ({
       ready,
+      loadError,
       authed,
       signIn,
       user,
@@ -371,7 +378,7 @@ export function KmcProvider({ children }: { children: ReactNode }) {
       setReportStatus,
     }),
     [
-      ready, authed, signIn, user, saveProfile, changePassword, call, drivers, wards, wardStatus, vehicles, routes, schedule, programs, updates, reports, notifications, seen,
+      ready, loadError, authed, signIn, user, saveProfile, changePassword, call, drivers, wards, wardStatus, vehicles, routes, schedule, programs, updates, reports, notifications, seen,
       selectedWard, period, collectionTab, awarenessTab, updateFilter, reportStatusFilter, reportCategory, openComplaints,
       driverOf, totalTons, countStatus, completeRoute, restartRoute, addVehicle, assignDriver, assignRoute, changeSchedule,
       addProgram, registerCitizens, addUpdate, setReportStatus,

@@ -1,10 +1,11 @@
 import type { InputHTMLAttributes, LabelHTMLAttributes, SelectHTMLAttributes, TextareaHTMLAttributes } from "react";
 import { cn } from "@/lib/cn";
 
-const control = "w-full rounded-lg border border-line bg-surface px-2.5 py-2";
+const control =
+  "w-full rounded-xl border border-line bg-surface px-3 py-2.5 text-ink outline-none transition-colors placeholder:text-mut/70 focus:border-ac focus:ring-2 focus:ring-ac-soft";
 
 export function Label({ className, ...rest }: LabelHTMLAttributes<HTMLLabelElement>) {
-  return <label className={cn("mb-[3px] mt-2.5 block text-[13px] text-mut", className)} {...rest} />;
+  return <label className={cn("mb-1 mt-3 block text-[13px] font-medium text-mut", className)} {...rest} />;
 }
 
 export function Input({ className, ...rest }: InputHTMLAttributes<HTMLInputElement>) {
@@ -23,7 +24,7 @@ interface SelectProps extends Omit<SelectHTMLAttributes<HTMLSelectElement>, "onC
 
 export function Select({ options, value, onChange, className, ...rest }: SelectProps) {
   return (
-    <select className={cn(control, className)} value={value} onChange={(e) => onChange(e.target.value)} {...rest}>
+    <select className={cn(control, "pr-8", className)} value={value} onChange={(e) => onChange(e.target.value)} {...rest}>
       {options.map((o) => (
         <option key={o} value={o}>
           {o}
@@ -49,8 +50,8 @@ export function Field({ label, children }: FieldProps) {
 
 export function CheckboxLabel({ children }: { children: React.ReactNode }) {
   return (
-    <label className="mb-[3px] mt-2.5 flex gap-2 text-[13px] text-ink">
-      <input type="checkbox" defaultChecked className="w-auto" />
+    <label className="mb-1 mt-3 flex items-center gap-2 text-[13px] text-ink">
+      <input type="checkbox" defaultChecked className="h-4 w-4 accent-[var(--ac)]" />
       {children}
     </label>
   );

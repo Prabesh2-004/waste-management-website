@@ -2,3 +2,8 @@ node_modules
 .next
 .git
 .env*
+e2e/.runtime
+e2e/.results
+e2e/.report
+UI
+certificates

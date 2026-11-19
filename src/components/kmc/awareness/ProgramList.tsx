@@ -1,7 +1,6 @@
 "use client";
 
-import { Box } from "@/components/ui/Box";
-import { Row } from "@/components/ui/Row";
+import { ProgramCard } from "@/components/shared/admin/ProgramCard";
 import { KmcStatus } from "../KmcStatus";
 import { ProgramDrawer } from "./ProgramDrawer";
 import { useKmc } from "@/context/KmcContext";
@@ -13,21 +12,28 @@ export function ProgramList() {
   const list = programs.filter((p) => p.s === awarenessTab);
 
   return (
-    <Box>
-      {list.map((p) => (
-        <Row key={p.id} onClick={() => openDrawer(<ProgramDrawer programId={p.id} />)}>
-          <span>
-            <b>{p.n}</b>{" "}
-            <span className="text-mut">
-              Ward {p.w} · {p.d}
-            </span>
-          </span>
-          <span className="shrink-0 text-right">
-            <KmcStatus status={p.s} /> · {p.s === "Upcoming" ? `${p.reg} registered` : `${p.att} / ${p.exp} attended`}
-          </span>
-        </Row>
-      ))}
+    <>
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+        {list.map((p) => {
+          const upcoming = p.s === "Upcoming";
+          const n = upcoming ? p.reg : p.att;
+          return (
+            <ProgramCard
+              key={p.id}
+              id={p.id}
+              name={p.n}
+              date={p.d}
+              time={p.tm}
+              place={`Ward ${p.w}${p.loc ? ` · ${p.loc}` : ""}`}
+              count={upcoming ? `${p.reg} registered · ${p.exp} expected` : `${p.att} / ${p.exp} attended`}
+              percent={p.exp ? (n / p.exp) * 100 : 0}
+              status={<KmcStatus status={p.s} />}
+              onOpen={() => openDrawer(<ProgramDrawer programId={p.id} />)}
+            />
+          );
+        })}
+      </div>
       {list.length === 0 && <p className="text-mut">Nothing here yet.</p>}
-    </Box>
+    </>
   );
 }

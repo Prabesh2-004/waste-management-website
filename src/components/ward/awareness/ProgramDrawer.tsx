@@ -32,7 +32,7 @@ export function ProgramDrawer({ programId }: { programId: number }) {
           <Button variant="outline" size="sm" onClick={() => decide(true)}>
             Simulate KMC: Approve
           </Button>
-          <Button variant="outline" size="sm" onClick={() => decide(false)}>
+          <Button variant="danger" size="sm" onClick={() => decide(false)}>
             Needs changes
           </Button>
         </div>
@@ -84,14 +84,19 @@ export function ProgramDrawer({ programId }: { programId: number }) {
 
   return (
     <DrawerContent>
-      <h3>{p.n}</h3>
-      <h2>{wardName}</h2>
-      <p className="text-mut">
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <h2 className="m-0">{p.n}</h2>
+          <span className="text-sm text-mut">{wardName}</span>
+        </div>
+        <WardStatus status={programStatus(p)} />
+      </div>
+      <p className="text-[13px] text-mut">
         {p.d} · {p.tm}
         <br />
-        Location: {p.loc}
+        Location: {p.loc || "—"}
       </p>
-      <p>{p.ds}</p>
+      <p className="rounded-xl bg-ac-wash px-3 py-2.5">{p.ds}</p>
       <KeyValueGrid
         items={[
           { label: "Expected", value: p.exp },
